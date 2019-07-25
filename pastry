@@ -1,19 +1,38 @@
 #!/usr/bin/env python
+import pkgutil
+import sys
+from importlib import import_module
 
+import pandas as pd
 import tomlkit
-import requests
+
+sys.path.append('.')
 
 
 def run(config):
+    data_sources = {}
     for data_source in config['data_source']:
         url = data_source['url']
-        requests.get(url)
+        data = pd.read_csv(url)
+        data_sources[data_source['name']] = data
+
+    dataset = data_sources[config['dataset']['data_source']]
+    predictors = get_predictors()
 
 
+
+def get_predictors():
+    modules = pkgutil.iter_modules('.')
+    for importer, modname, ispkg in pkgutil.iter_modules('.'):
+        print("Found submodule %s (is a package: %s)" % (modname, ispkg))
+        module = import_module(modname)
+        print("Imported", module)
+
+    print(list(modules))
 
 
 
 if __name__ == "__main__":
     with open('config.toml') as toml_file:
         config = tomlkit.loads(toml_file.read())
-        print(config)
+        run(config)

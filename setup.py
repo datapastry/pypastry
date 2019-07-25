@@ -6,5 +6,5 @@ setup(
     description='PyPastry machine learning experimentation framework',
     author='Daoud Clarke',
     scripts=['pastry'],
-    install_requires=['tomlkit']
+    install_requires=['tomlkit', 'pandas', 'scikit-learn']
 )
