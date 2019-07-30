@@ -1,7 +1,11 @@
 #!/usr/bin/env python
+import json
 import pkgutil
 import sys
+from datetime import datetime
 from importlib import import_module
+from os import path
+from uuid import uuid4
 
 import pandas as pd
 import tomlkit
@@ -19,8 +23,30 @@ def run(config: TOMLDocument):
     y = dataset[label_column]
     predictors = get_predictors()
     for predictor in predictors:
-        scores = cross_validate(predictor, X, y)
-        print(predictor, scores)
+        start = datetime.utcnow()
+        scores_dict = cross_validate(predictor, X, y)
+        end = datetime.utcnow()
+
+        scores = pd.DataFrame(scores_dict)
+        mean_scores = scores.mean()
+        sem_scores = scores.sem()
+        results = dict(mean_scores.items())
+        results.update({k + '_sem': v for k, v in sem_scores.items()})
+
+        run_info = {
+            'run_start': str(start),
+            'run_end': str(end),
+            'run_seconds': (end - start).total_seconds(),
+            'results': results,
+            'model_info': str(predictor),
+        }
+
+        run_id = uuid4()
+        output_path = path.join('results', str(run_id)) + '.json'
+        with open(output_path, 'w') as output_file:
+            json.dump(run_info, output_file, indent=4)
+
+        print(run_info)
 
 
 def get_dataset(config: TOMLDocument) -> pd.DataFrame:
