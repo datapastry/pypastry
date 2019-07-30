@@ -9,6 +9,7 @@ from uuid import uuid4
 
 import pandas as pd
 import tomlkit
+from git import Repo
 from sklearn.model_selection import cross_validate
 from tomlkit.toml_document import TOMLDocument
 
@@ -22,6 +23,27 @@ def run(config: TOMLDocument):
     X = dataset.drop(columns=[label_column])
     y = dataset[label_column]
     predictors = get_predictors()
+
+    run_infos = evaluate_predictors(X, predictors, y)
+
+    repo = Repo('.')
+    repo.git.add(update=True)
+    repo.index.commit('Run evaluation')
+    sha = repo.head.commit.hexsha
+
+    for i, run_info in enumerate(run_infos):
+        run_id = sha + '.' + str(i)
+        output_path = path.join('results', str(run_id)) + '.json'
+        with open(output_path, 'w') as output_file:
+            json.dump(run_info, output_file, indent=4)
+
+        repo.index.add([output_path])
+        print(run_info)
+    repo.index.commit('Add results')
+
+
+def evaluate_predictors(X, predictors, y):
+    run_infos = []
     for predictor in predictors:
         start = datetime.utcnow()
         scores_dict = cross_validate(predictor, X, y)
@@ -40,13 +62,8 @@ def run(config: TOMLDocument):
             'results': results,
             'model_info': str(predictor),
         }
-
-        run_id = uuid4()
-        output_path = path.join('results', str(run_id)) + '.json'
-        with open(output_path, 'w') as output_file:
-            json.dump(run_info, output_file, indent=4)
-
-        print(run_info)
+        run_infos.append(run_info)
+    return run_infos
 
 
 def get_dataset(config: TOMLDocument) -> pd.DataFrame:
