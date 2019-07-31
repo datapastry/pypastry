@@ -78,6 +78,7 @@ def get_dataset(config: TOMLDocument) -> pd.DataFrame:
     data_sources = {}
     for data_source in config['data_source']:
         url = data_source['url']
+        print("Getting data from", url)
         data = pd.read_csv(url)
         data_sources[data_source['name']] = data
     return data_sources[config['dataset']['data_source']]
@@ -108,9 +109,9 @@ def print_results():
                 'Git hash': git_hash,
                 'Run start': result_json['run_start'][:19],
                 'Model': result_json['model_info']['type'],
-                'Score': "{} +/- {}".format(result_json['results']['test_score'],
+                'Score': "{:.3f} ± {:.3f}".format(result_json['results']['test_score'],
                                             result_json['results']['test_score_sem']),
-                'Duration (s)': result_json['run_seconds'],
+                'Duration (s)': "{:.2f}".format(result_json['run_seconds']),
             }
             results.append(result)
 
