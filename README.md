@@ -11,7 +11,7 @@ machine learning experiments. We enable you to:
  - Make experiments reproducible. That means keeping track of your
    code state and results.
  - Experiment locally. None of that Spark rubbish.
- - Use standard tools. Everything is based on Scikit-learn and Git.
+ - Use standard tools. Everything is based on Scikit-learn, Pandas and Git.
 
 Quick start
 -----------

@@ -3,15 +3,19 @@ import json
 import pkgutil
 import sys
 from datetime import datetime
+from glob import glob
 from importlib import import_module
 from os import path
-from uuid import uuid4
 
 import pandas as pd
 import tomlkit
 from git import Repo
+from pandas import DataFrame
 from sklearn.model_selection import cross_validate
 from tomlkit.toml_document import TOMLDocument
+
+RESULTS_GLOB = "results/*.json"
+
 
 sys.path.append('.')
 
@@ -40,6 +44,7 @@ def run(config: TOMLDocument):
         repo.index.add([output_path])
         print(run_info)
     repo.index.commit('Add results')
+    print_results()
 
 
 def evaluate_predictors(X, predictors, y):
@@ -89,7 +94,30 @@ def get_predictors():
     return predictors
 
 
+def print_results():
+    results = []
+    for path in glob(RESULTS_GLOB):
+        with open(path) as results_file:
+            git_hash = path[8:16]
+
+            result_json = json.load(results_file)
+            result = {
+                'Git hash': git_hash,
+                'Run start': result_json['run_start'][:19],
+                'Duration (s)': result_json['run_seconds'],
+                'Score': result_json['results']['test_score']
+            }
+            results.append(result)
+
+    results.sort(key=lambda row: row['Run start'])
+    results_dataframe = DataFrame(results)
+    print(results_dataframe)
+
+
 if __name__ == "__main__":
-    with open('config.toml') as toml_file:
-        toml_config = tomlkit.loads(toml_file.read())
-        run(toml_config)
+    if sys.argv[1] == "list":
+        print_results()
+    else:
+        with open('config.toml') as toml_file:
+            toml_config = tomlkit.loads(toml_file.read())
+            run(toml_config)
