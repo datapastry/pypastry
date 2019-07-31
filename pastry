@@ -105,7 +105,8 @@ def print_results():
                 'Git hash': git_hash,
                 'Run start': result_json['run_start'][:19],
                 'Duration (s)': result_json['run_seconds'],
-                'Score': result_json['results']['test_score']
+                'Score': "{} +/- {}".format(result_json['results']['test_score'],
+                                            result_json['results']['test_score_sem']),
             }
             results.append(result)
 
