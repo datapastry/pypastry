@@ -77,9 +77,9 @@ def evaluate_predictors(X, predictors, y):
 def get_dataset(config: TOMLDocument) -> pd.DataFrame:
     data_sources = {}
     for data_source in config['data_source']:
-        url = data_source['url']
-        print("Getting data from", url)
-        data = pd.read_csv(url)
+        path = data_source['path']
+        print("Getting data from", path)
+        data = pd.read_csv(path)
         data_sources[data_source['name']] = data
     return data_sources[config['dataset']['data_source']]
 
