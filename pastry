@@ -11,6 +11,7 @@ import pandas as pd
 import tomlkit
 from git import Repo
 from pandas import DataFrame
+from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 from tomlkit.toml_document import TOMLDocument
 
@@ -60,12 +61,14 @@ def evaluate_predictors(X, predictors, y):
         results = dict(mean_scores.items())
         results.update({k + '_sem': v for k, v in sem_scores.items()})
 
+        model_info = get_model_info(predictor)
+
         run_info = {
             'run_start': str(start),
             'run_end': str(end),
             'run_seconds': (end - start).total_seconds(),
             'results': results,
-            'model_info': str(predictor),
+            'model_info': model_info,
         }
         run_infos.append(run_info)
     return run_infos
@@ -115,8 +118,14 @@ def print_results():
     print(results_dataframe)
 
 
+def get_model_info(model: BaseEstimator):
+    info = model.get_params()
+    info['type'] = type(model).__name__
+    return info
+
+
 if __name__ == "__main__":
-    if sys.argv[1] == "list":
+    if len(sys.argv) > 1 and sys.argv[1] == "list":
         print_results()
     else:
         with open('config.toml') as toml_file:
