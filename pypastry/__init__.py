@@ -9,7 +9,6 @@ import pandas as pd
 from git import Repo
 from pandas import DataFrame
 from sklearn.base import BaseEstimator
-from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_validate, BaseCrossValidator
 from tomlkit.toml_document import TOMLDocument
 
@@ -17,13 +16,13 @@ RESULTS_GLOB = "results/*.json"
 
 
 def run_experiment(dataset: DataFrame, label_column: str, predictor: BaseEstimator,
-                   cross_validator: BaseCrossValidator, metric):
+                   cross_validator: BaseCrossValidator, scorer):
     print(dataset)
     X = dataset.drop(columns=[label_column])
     y = dataset[label_column]
     predictors = [predictor]
 
-    run_infos = evaluate_predictors(X, predictors, y, cross_validator, metric)
+    run_infos = evaluate_predictors(X, predictors, y, cross_validator, scorer)
 
     repo = Repo('.')
     repo.git.add(update=True)
@@ -42,11 +41,11 @@ def run_experiment(dataset: DataFrame, label_column: str, predictor: BaseEstimat
     print_results()
 
 
-def evaluate_predictors(X, predictors, y, cross_validator, metric):
+def evaluate_predictors(X, predictors, y, cross_validator, scorer):
     run_infos = []
     for predictor in predictors:
         start = datetime.utcnow()
-        scores_dict = cross_validate(predictor, X, y, cv=cross_validator, scoring=make_scorer(metric, average='micro'))
+        scores_dict = cross_validate(predictor, X, y, cv=cross_validator, scoring=scorer)
         end = datetime.utcnow()
 
         scores = pd.DataFrame(scores_dict)

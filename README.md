@@ -25,3 +25,11 @@ Quick start
 
           Date  Git hash   Dataset  Predictor  F1 score  F1 score SEM  Duration (s)           Comment
     2019-07-01   98350bb  iris.csv  LinearSVC     0.153         0.052          0.32  First experiment
+
+To do
+-----
+
+ - Get the git hash of results file from git (don't do an extra commit)
+ - Get the hash of the dataset
+ - Store the CV split so that it can be reproduced exactly
+ 
