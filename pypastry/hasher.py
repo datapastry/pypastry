@@ -25,16 +25,6 @@ def get_bytes_hash(data: bytes):
     return hasher.hexdigest()
 
 
-def get_file_hash(path):
-    hasher = hashlib.sha1()
-    with open(path, 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = afile.read(BLOCKSIZE)
-    return hasher.hexdigest()
-
-
 if __name__ == "__main__":
     data = pd.read_csv('../data/iris.csv')
     hash = get_dataset_hash(data)

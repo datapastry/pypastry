@@ -3,11 +3,12 @@ import pkgutil
 from datetime import datetime
 from glob import glob
 from importlib import import_module
-from os import path
+from os import path, mkdir
 
 import pandas as pd
 from git import Repo
 from pandas import DataFrame
+from pypastry.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate, BaseCrossValidator
 from tomlkit.toml_document import TOMLDocument
@@ -29,7 +30,19 @@ def run_experiment(dataset: DataFrame, label_column: str, predictor: BaseEstimat
     repo.index.commit('Run evaluation')
     sha = repo.head.commit.hexsha
 
+    dataset_hash = get_dataset_hash(dataset)
+    dataset_info = {
+        'hash': dataset_hash,
+        'columns': dataset.columns.tolist(),
+    }
+
+    try:
+        mkdir('results')
+    except FileExistsError:
+        pass
+
     for i, run_info in enumerate(run_infos):
+        run_info['dataset'] = dataset_info
         run_id = sha + '.' + str(i)
         output_path = path.join('results', str(run_id)) + '.json'
         with open(output_path, 'w') as output_file:
@@ -93,6 +106,7 @@ def get_predictors():
 
 def print_results():
     results = []
+
     for path in glob(RESULTS_GLOB):
         with open(path) as results_file:
             git_hash = path[8:16]
@@ -100,6 +114,7 @@ def print_results():
             result_json = json.load(results_file)
             result = {
                 'Git hash': git_hash,
+                'Dataset hash': result_json['dataset']['hash'][:8],
                 'Run start': result_json['run_start'][:19],
                 'Model': result_json['model_info']['type'],
                 'Score': "{:.3f} ± {:.3f}".format(result_json['results']['test_score'],
