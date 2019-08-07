@@ -4,6 +4,7 @@ from datetime import datetime
 from glob import glob
 from importlib import import_module
 from os import path, mkdir
+from tempfile import NamedTemporaryFile
 
 import pandas as pd
 from git import Repo
@@ -18,40 +19,38 @@ RESULTS_GLOB = "results/*.json"
 
 def run_experiment(dataset: DataFrame, label_column: str, predictor: BaseEstimator,
                    cross_validator: BaseCrossValidator, scorer):
-    print(dataset)
+    print("Loaded dataset with {} rows".format(len(dataset)))
+
+    repo = Repo('.')
+    if repo.is_dirty():
+        _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer)
+    else:
+        print("Clean repo, nothing to do")
+    print_results()
+
+
+def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer):
     X = dataset.drop(columns=[label_column])
     y = dataset[label_column]
     predictors = [predictor]
-
     run_infos = evaluate_predictors(X, predictors, y, cross_validator, scorer)
-
-    repo = Repo('.')
     repo.git.add(update=True)
-    repo.index.commit('Run evaluation')
-    sha = repo.head.commit.hexsha
-
     dataset_hash = get_dataset_hash(dataset)
     dataset_info = {
         'hash': dataset_hash,
         'columns': dataset.columns.tolist(),
     }
-
     try:
         mkdir('results')
     except FileExistsError:
         pass
-
     for i, run_info in enumerate(run_infos):
         run_info['dataset'] = dataset_info
-        run_id = sha + '.' + str(i)
-        output_path = path.join('results', str(run_id)) + '.json'
-        with open(output_path, 'w') as output_file:
+        with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json', dir='results', delete=False) as output_file:
             json.dump(run_info, output_file, indent=4)
-
-        repo.index.add([output_path])
-        print(run_info)
+            output_file.flush()
+            repo.index.add([output_file.name])
     repo.index.commit('Add results')
-    print_results()
 
 
 def evaluate_predictors(X, predictors, y, cross_validator, scorer):
@@ -107,10 +106,12 @@ def get_predictors():
 def print_results():
     results = []
 
+    repo = Repo('.')
+
     for path in glob(RESULTS_GLOB):
         with open(path) as results_file:
-            git_hash = path[8:16]
 
+            git_hash = next(repo.iter_commits(paths=path)).hexsha[:8]
             result_json = json.load(results_file)
             result = {
                 'Git hash': git_hash,
