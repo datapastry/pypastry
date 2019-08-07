@@ -29,7 +29,13 @@ Quick start
 To do
 -----
 
- - Get the git hash of results file from git (don't do an extra commit)
- - Get the hash of the dataset
+ - Fix `pastry` command
+ - Proper command line arguments
+   - `-m`: add a git commit message
+   - `-f`: force a run
+   - `print`: print results
  - Store the CV split so that it can be reproduced exactly
- 
+ - Refactor
+ - Documentation
+ - Tests
+ - Website
