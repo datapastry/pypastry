@@ -1,82 +1,23 @@
-import json
 import pkgutil
-from datetime import datetime
-from glob import glob
 from importlib import import_module
-from os import path, mkdir
-from tempfile import NamedTemporaryFile
 
 import pandas as pd
-from git import Repo
 from pandas import DataFrame
-from pypastry.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
-from sklearn.model_selection import cross_validate, BaseCrossValidator
+from sklearn.model_selection import BaseCrossValidator
 from tomlkit.toml_document import TOMLDocument
 
 RESULTS_GLOB = "results/*.json"
 
 
-def run_experiment(dataset: DataFrame, label_column: str, predictor: BaseEstimator,
-                   cross_validator: BaseCrossValidator, scorer):
-    print("Loaded dataset with {} rows".format(len(dataset)))
-
-    repo = Repo('.')
-    if repo.is_dirty():
-        _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer)
-    else:
-        print("Clean repo, nothing to do")
-    print_results()
-
-
-def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer):
-    X = dataset.drop(columns=[label_column])
-    y = dataset[label_column]
-    predictors = [predictor]
-    run_infos = evaluate_predictors(X, predictors, y, cross_validator, scorer)
-    repo.git.add(update=True)
-    dataset_hash = get_dataset_hash(dataset)
-    dataset_info = {
-        'hash': dataset_hash,
-        'columns': dataset.columns.tolist(),
-    }
-    try:
-        mkdir('results')
-    except FileExistsError:
-        pass
-    for i, run_info in enumerate(run_infos):
-        run_info['dataset'] = dataset_info
-        with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json', dir='results', delete=False) as output_file:
-            json.dump(run_info, output_file, indent=4)
-            output_file.flush()
-            repo.index.add([output_file.name])
-    repo.index.commit('Add results')
-
-
-def evaluate_predictors(X, predictors, y, cross_validator, scorer):
-    run_infos = []
-    for predictor in predictors:
-        start = datetime.utcnow()
-        scores_dict = cross_validate(predictor, X, y, cv=cross_validator, scoring=scorer)
-        end = datetime.utcnow()
-
-        scores = pd.DataFrame(scores_dict)
-        mean_scores = scores.mean()
-        sem_scores = scores.sem()
-        results = dict(mean_scores.items())
-        results.update({k + '_sem': v for k, v in sem_scores.items()})
-
-        model_info = get_model_info(predictor)
-
-        run_info = {
-            'run_start': str(start),
-            'run_end': str(end),
-            'run_seconds': (end - start).total_seconds(),
-            'results': results,
-            'model_info': model_info,
-        }
-        run_infos.append(run_info)
-    return run_infos
+class Experiment:
+    def __init__(self, dataset: DataFrame, label_column: str, predictor: BaseEstimator,
+                 cross_validator: BaseCrossValidator, scorer):
+        self.dataset = dataset
+        self.label_column = label_column
+        self.predictor = predictor
+        self.cross_validator = cross_validator
+        self.scorer = scorer
 
 
 def get_dataset(config: TOMLDocument) -> pd.DataFrame:
@@ -103,33 +44,3 @@ def get_predictors():
     return predictors
 
 
-def print_results():
-    results = []
-
-    repo = Repo('.')
-
-    for path in glob(RESULTS_GLOB):
-        with open(path) as results_file:
-
-            git_hash = next(repo.iter_commits(paths=path)).hexsha[:8]
-            result_json = json.load(results_file)
-            result = {
-                'Git hash': git_hash,
-                'Dataset hash': result_json['dataset']['hash'][:8],
-                'Run start': result_json['run_start'][:19],
-                'Model': result_json['model_info']['type'],
-                'Score': "{:.3f} ± {:.3f}".format(result_json['results']['test_score'],
-                                            result_json['results']['test_score_sem']),
-                'Duration (s)': "{:.2f}".format(result_json['run_seconds']),
-            }
-            results.append(result)
-
-    results.sort(key=lambda row: row['Run start'])
-    results_dataframe = DataFrame(results)
-    print(results_dataframe)
-
-
-def get_model_info(model: BaseEstimator):
-    info = model.get_params()
-    info['type'] = type(model).__name__
-    return info
