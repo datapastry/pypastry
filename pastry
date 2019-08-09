@@ -18,8 +18,8 @@ The command can be:
         args = parser.parse_args(sys.argv[1:2])
 
         if args.command == 'print':
-            from commands.print_ import print_results
-            print_results()
+            from commands.print_ import run
+            run()
         elif args.command == 'run':
             from commands.run import run
             run()
