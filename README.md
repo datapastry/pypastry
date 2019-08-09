@@ -29,11 +29,9 @@ Quick start
 To do
 -----
 
- - Fix `pastry` command
  - Proper command line arguments
    - `-m`: add a git commit message
    - `-f`: force a run
-   - `print`: print results
  - Store the CV split so that it can be reproduced exactly
  - Refactor
  - Documentation
