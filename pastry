@@ -8,7 +8,7 @@ from pstats import Stats
 def parse_and_run():
         parser = argparse.ArgumentParser(
             description='Run a machine learning experiment',
-            usage='''pastry [<command>] [<args>]
+            usage='''pastry <command> [<args>]
 
 The command can be:
    run        Run an experiment

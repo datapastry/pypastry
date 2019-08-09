@@ -13,19 +13,20 @@ from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 
 
-def run_experiment(experiment: Experiment, force: bool):
+def run_experiment(experiment: Experiment, force: bool, message: str):
     print("Got dataset with {} rows".format(len(experiment.dataset)))
     repo = Repo('.')
     if force or repo.is_dirty():
         _run_evaluation(experiment.cross_validator, experiment.dataset,
-                        experiment.label_column, experiment.predictor, repo, experiment.scorer)
+                        experiment.label_column, experiment.predictor, repo, experiment.scorer,
+                        message)
         cache_display()
     else:
         print("Clean repo, nothing to do")
     print_display()
 
 
-def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer):
+def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer, message):
     X = dataset.drop(columns=[label_column])
     y = dataset[label_column]
     predictors = [predictor]
@@ -46,7 +47,7 @@ def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, sco
             json.dump(run_info, output_file, indent=4)
             output_file.flush()
             repo.index.add([output_file.name])
-    repo.index.commit('Add results')
+    repo.index.commit(message)
 
 
 def evaluate_predictors(X, predictors, y, cross_validator, scorer):
