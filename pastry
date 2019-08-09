@@ -2,10 +2,8 @@
 import argparse
 import sys
 
-from pypastry.commands.print_ import print_results
-from pypastry.commands.run import run
-
-sys.path.append('.')
+from commands.print_ import print_results
+from commands.run import run
 
 
 commands = {

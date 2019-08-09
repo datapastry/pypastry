@@ -1,22 +1,20 @@
 import json
+import sys
 from datetime import datetime
 from os import mkdir
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
 from git import Repo
-from pypastry.commands.print_ import print_results
+from commands.print_ import print_results
 from pypastry.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 
 
 def run():
-    try:
-        import pie
-    except ImportError:
-        print("Can't find 'pie.py', please create this file so I can eat it!")
-        exit(1)
+    sys.path.append('.')
+    import pie
     experiment = pie.get_experiment()
 
     print("Got dataset with {} rows".format(len(experiment.dataset)))
