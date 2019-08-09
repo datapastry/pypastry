@@ -29,9 +29,6 @@ Quick start
 To do
 -----
 
- - Proper command line arguments
-   - `-f`: force a run
-   - `-m`: add a git commit message
  - Store the CV split so that it can be reproduced exactly
  - Refactor
  - Documentation

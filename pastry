@@ -4,6 +4,8 @@ import os
 import sys
 from pstats import Stats
 
+PROFILE_PATH = '/tmp/pastry.profile'
+
 
 def parse_and_run():
         parser = argparse.ArgumentParser(
@@ -32,8 +34,8 @@ The command can be:
 if __name__ == "__main__":
     if os.environ.get('PASTRY_PROFILE'):
         import cProfile
-        cProfile.run('parse_and_run()', 'pastry.profile')
-        stats = Stats('pastry.profile')
+        cProfile.run('parse_and_run()', PROFILE_PATH)
+        stats = Stats(PROFILE_PATH)
         stats.sort_stats('cumulative').print_stats(20)
     else:
         parse_and_run()
