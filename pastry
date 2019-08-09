@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 import argparse
+import os
 import sys
-
-from commands.print_ import print_results
-from commands.run import run
-
-
-commands = {
-    'run': run,
-    'print': print_results,
-}
+from pstats import Stats
 
 
 def parse_and_run():
@@ -24,8 +17,23 @@ The command can be:
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
 
-        commands[args.command]()
+        if args.command == 'print':
+            from commands.print_ import print_results
+            print_results()
+        elif args.command == 'run':
+            from commands.run import run
+            run()
+        else:
+            print("Unrecognised command: {}".format(args.command))
+            parser.print_usage()
+            exit(1)
 
 
 if __name__ == "__main__":
-    parse_and_run()
+    if os.environ.get('PASTRY_PROFILE'):
+        import cProfile
+        cProfile.run('parse_and_run()', 'pastry.profile')
+        stats = Stats('pastry.profile')
+        stats.sort_stats('cumulative').print_stats(20)
+    else:
+        parse_and_run()
