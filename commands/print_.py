@@ -1,5 +1,5 @@
-from pypastry.display import print_results
+from core import print_display
 
 
 def run():
-    print_results()
+    print_display()

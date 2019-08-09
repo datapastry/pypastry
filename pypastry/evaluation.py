@@ -4,8 +4,9 @@ from os import mkdir
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
+from core import print_display
 from git import Repo
-from pypastry.display import print_results
+from pypastry.display import cache_display
 from pypastry.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
@@ -17,9 +18,10 @@ def run_experiment(experiment):
     if repo.is_dirty():
         _run_evaluation(experiment.cross_validator, experiment.dataset,
                         experiment.label_column, experiment.predictor, repo, experiment.scorer)
+        cache_display()
     else:
         print("Clean repo, nothing to do")
-    print_results()
+    print_display()
 
 
 def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer):

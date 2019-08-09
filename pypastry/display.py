@@ -1,12 +1,15 @@
 import json
 from glob import glob
 
+from core import DISPLAY_PATH
 from git import Repo
 from pandas import DataFrame
 from pypastry import RESULTS_GLOB
 
 
-def print_results():
+def cache_display():
+    print("Regenerating cache")
+
     results = []
     repo = Repo('.')
     for path in glob(RESULTS_GLOB):
@@ -24,5 +27,9 @@ def print_results():
             }
             results.append(result)
     results.sort(key=lambda row: row['Run start'])
-    results_dataframe = DataFrame(results)
-    print(results_dataframe)
+    recent_results = results[-5:]
+    results_dataframe = DataFrame(recent_results)
+    display = repr(results_dataframe)
+    with open(DISPLAY_PATH, 'w') as output_file:
+        output_file.write(display)
+
