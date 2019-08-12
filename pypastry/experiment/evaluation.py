@@ -6,7 +6,8 @@ from tempfile import NamedTemporaryFile
 import pandas as pd
 from pypastry.core import print_display
 from git import Repo
-from pypastry import Experiment
+
+from pypastry.experiment import Experiment
 from pypastry.experiment.display import cache_display
 from pypastry.experiment.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
