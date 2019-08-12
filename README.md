@@ -29,7 +29,10 @@ Quick start
 To do
 -----
 
+ - Allow evaluation on groups of instances
+ - Add a command 'pastry init' to set up a new pypastry repo
  - Store the CV split so that it can be reproduced exactly
+ - Ensure that results files are unlikely to coincide on different branches
  - Refactor
  - Documentation
  - Tests
