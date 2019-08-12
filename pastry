@@ -20,10 +20,10 @@ The command can be:
         args = parser.parse_args(sys.argv[1:2])
 
         if args.command == 'print':
-            from commands.print_ import run
+            from pypastry.commands import run
             run()
         elif args.command == 'run':
-            from commands.run import run
+            from pypastry.commands import run
             run()
         else:
             print("Unrecognised command: {}".format(args.command))

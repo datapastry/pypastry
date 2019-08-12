@@ -5,7 +5,7 @@ def print_display():
     try:
         _print_cache_file()
     except FileNotFoundError:
-        from pypastry.display import cache_display
+        from pypastry.experiment.display import cache_display
         cache_display()
         _print_cache_file()
 

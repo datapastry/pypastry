@@ -1,10 +1,9 @@
 import json
 from glob import glob
 
-from core import DISPLAY_PATH
+from pypastry.core import DISPLAY_PATH
 from git import Repo
 from pandas import DataFrame
-from pypastry import RESULTS_GLOB
 
 
 def cache_display():
@@ -33,3 +32,5 @@ def cache_display():
     with open(DISPLAY_PATH, 'w') as output_file:
         output_file.write(display)
 
+
+RESULTS_GLOB = "results/*.json"

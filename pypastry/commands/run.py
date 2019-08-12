@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from pypastry.evaluation import run_experiment
+from pypastry.experiment.evaluation import run_experiment
 
 
 def run():

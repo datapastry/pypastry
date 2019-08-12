@@ -4,11 +4,11 @@ from os import mkdir
 from tempfile import NamedTemporaryFile
 
 import pandas as pd
-from core import print_display
+from pypastry.core import print_display
 from git import Repo
 from pypastry import Experiment
-from pypastry.display import cache_display
-from pypastry.hasher import get_dataset_hash
+from pypastry.experiment.display import cache_display
+from pypastry.experiment.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 
