@@ -1,57 +1,47 @@
-import json
 from datetime import datetime
-from os import mkdir
-from tempfile import NamedTemporaryFile
 
 import pandas as pd
-from pypastry.core import print_display
 from git import Repo
 
+from pypastry.display import print_display, ResultsDisplay
 from pypastry.experiment import Experiment
-from pypastry.experiment.display import cache_display
 from pypastry.experiment.hasher import get_dataset_hash
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import cross_validate
 
-
-def run_experiment(experiment: Experiment, force: bool, message: str):
-    print("Got dataset with {} rows".format(len(experiment.dataset)))
-    repo = Repo('.')
-    if force or repo.is_dirty():
-        _run_evaluation(experiment.cross_validator, experiment.dataset,
-                        experiment.label_column, experiment.predictor, repo, experiment.scorer,
-                        message)
-        cache_display()
-    else:
-        print("Clean repo, nothing to do")
-    print_display()
+from pypastry.experiment.results import ResultsRepo
 
 
-def _run_evaluation(cross_validator, dataset, label_column, predictor, repo, scorer, message):
-    X = dataset.drop(columns=[label_column])
-    y = dataset[label_column]
-    predictors = [predictor]
-    run_infos = evaluate_predictors(X, predictors, y, cross_validator, scorer)
-    repo.git.add(update=True)
-    dataset_hash = get_dataset_hash(dataset)
-    dataset_info = {
-        'hash': dataset_hash,
-        'columns': dataset.columns.tolist(),
-    }
-    try:
-        mkdir('results')
-    except FileExistsError:
-        pass
-    for i, run_info in enumerate(run_infos):
-        run_info['dataset'] = dataset_info
-        with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json', dir='results', delete=False) as output_file:
-            json.dump(run_info, output_file, indent=4)
-            output_file.flush()
-            repo.index.add([output_file.name])
-    repo.index.commit(message)
+class ExperimentRunner:
+    def __init__(self, git_repo: Repo, results_repo: ResultsRepo, results_display: ResultsDisplay):
+        self.git_repo = git_repo
+        self.results_repo = results_repo
+        self.results_display = results_display
+
+    def run_experiment(self, experiment: Experiment, force: bool, message: str):
+        print("Got dataset with {} rows".format(len(experiment.dataset)))
+        if force or self.git_repo.is_dirty():
+            self._run_evaluation(experiment, message)
+            self.results_display.cache_display()
+        else:
+            print("Clean repo, nothing to do")
+        print_display()
+
+    def _run_evaluation(self, experiment: Experiment, message: str):
+        X = experiment.dataset.drop(columns=[experiment.label_column])
+        y = experiment.dataset[experiment.label_column]
+        predictors = [experiment.predictor]
+        run_infos = _evaluate_predictors(X, predictors, y, experiment.cross_validator, experiment.scorer)
+        self.git_repo.git.add(update=True)
+        dataset_hash = get_dataset_hash(experiment.dataset)
+        dataset_info = {
+            'hash': dataset_hash,
+            'columns': experiment.dataset.columns.tolist(),
+        }
+        self.results_repo.save_results(run_infos, dataset_info, message)
 
 
-def evaluate_predictors(X, predictors, y, cross_validator, scorer):
+def _evaluate_predictors(X, predictors, y, cross_validator, scorer):
     run_infos = []
     for predictor in predictors:
         start = datetime.utcnow()
@@ -81,3 +71,4 @@ def get_model_info(model: BaseEstimator):
     info = model.get_params()
     info['type'] = type(model).__name__
     return info
+

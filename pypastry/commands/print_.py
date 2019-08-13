@@ -1,4 +1,4 @@
-from pypastry.core import print_display
+from pypastry.display import print_display
 
 
 def run():

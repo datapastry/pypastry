@@ -1,7 +1,12 @@
 import argparse
 import sys
 
-from pypastry.experiment.evaluation import run_experiment
+from git import Repo
+
+from pypastry.display import ResultsDisplay
+from pypastry.experiment.evaluation import ExperimentRunner
+from pypastry.experiment.results import ResultsRepo
+from pypastry.paths import REPO_PATH, RESULTS_PATH
 
 
 def run():
@@ -15,4 +20,7 @@ def run():
     import pie
     experiment = pie.get_experiment()
 
-    run_experiment(experiment, args.force, args.message)
+    git_repo = Repo(REPO_PATH)
+    results_repo = ResultsRepo(RESULTS_PATH, git_repo)
+    runner = ExperimentRunner(git_repo, results_repo, ResultsDisplay(results_repo))
+    runner.run_experiment(experiment, args.force, args.message)
