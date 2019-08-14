@@ -9,56 +9,42 @@ This is because I don't like having to wait a second for things to be imported.
 I want my pastry now!
 """
 import os
+from typing import Any, Dict, List
 
-from pypastry.paths import DISPLAY_PATH, RESULTS_PATH, REPO_PATH, DISPLAY_DIR
-
-
-class ResultsDisplay:
-    def __init__(self, results_repo):
-        self.results_repo = results_repo
-
-    def cache_display(self):
-        from pandas import DataFrame
-        print("Regenerating cache")
-
-        results = []
-        for result in self.results_repo.get_results():
-            data = result.data
-            result = {
-                'Git hash': result.git_hash,
-                'Dataset hash': data['dataset']['hash'][:8],
-                'Run start': data['run_start'][:19],
-                'Model': data['model_info']['type'],
-                'Score': "{:.3f} ± {:.3f}".format(data['results']['test_score'],
-                                                  data['results']['test_score_sem']),
-                'Duration (s)': "{:.2f}".format(data['run_seconds']),
-            }
-            results.append(result)
-        results.sort(key=lambda row: row['Run start'])
-        recent_results = results[-5:]
-        results_dataframe = DataFrame(recent_results)
-        display = repr(results_dataframe)
-
-        try:
-            os.mkdir(DISPLAY_DIR)
-        except FileExistsError:
-            pass
-
-        with open(DISPLAY_PATH, 'w') as output_file:
-            output_file.write(display)
+from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
 
 
-def print_display():
+def cache_display(results_from_repo: List[Dict[str, Any]]):
+    from pandas import DataFrame
+    print("Regenerating cache")
+
+    results = []
+    for result in results_from_repo:
+        data = result.data
+        result = {
+            'Git hash': result.git_hash,
+            'Dataset hash': data['dataset']['hash'][:8],
+            'Run start': data['run_start'][:19],
+            'Model': data['model_info']['type'],
+            'Score': "{:.3f} ± {:.3f}".format(data['results']['test_score'],
+                                              data['results']['test_score_sem']),
+            'Duration (s)': "{:.2f}".format(data['run_seconds']),
+        }
+        results.append(result)
+    results.sort(key=lambda row: row['Run start'])
+    recent_results = results[-5:]
+    results_dataframe = DataFrame(recent_results)
+    display = repr(results_dataframe)
+
     try:
-        _print_cache_file()
-    except FileNotFoundError:
-        from pypastry.experiment.results import ResultsRepo
-        from git import Repo
-        display = ResultsDisplay(ResultsRepo(RESULTS_PATH, Repo(REPO_PATH)))
-        display.cache_display()
-        _print_cache_file()
+        os.mkdir(DISPLAY_DIR)
+    except FileExistsError:
+        pass
+
+    with open(DISPLAY_PATH, 'w') as output_file:
+        output_file.write(display)
 
 
-def _print_cache_file():
+def print_cache_file():
     with open(DISPLAY_PATH) as display_file:
         print(display_file.read())
