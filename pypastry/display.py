@@ -8,8 +8,9 @@ This code needs to display results really fast. That's why it has some odd thing
 This is because I don't like having to wait a second for things to be imported.
 I want my pastry now!
 """
+import os
 
-from pypastry.paths import DISPLAY_PATH, RESULTS_PATH, REPO_PATH
+from pypastry.paths import DISPLAY_PATH, RESULTS_PATH, REPO_PATH, DISPLAY_DIR
 
 
 class ResultsDisplay:
@@ -37,6 +38,11 @@ class ResultsDisplay:
         recent_results = results[-5:]
         results_dataframe = DataFrame(recent_results)
         display = repr(results_dataframe)
+
+        try:
+            os.mkdir(DISPLAY_DIR)
+        except FileExistsError:
+            pass
 
         with open(DISPLAY_PATH, 'w') as output_file:
             output_file.write(display)
