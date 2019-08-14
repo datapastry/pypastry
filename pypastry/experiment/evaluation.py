@@ -1,4 +1,5 @@
 from datetime import datetime
+from types import ModuleType
 from typing import Any
 
 import pandas as pd
@@ -13,7 +14,7 @@ from pypastry.experiment.results import ResultsRepo
 
 
 class ExperimentRunner:
-    def __init__(self, git_repo: Repo, results_repo: ResultsRepo, results_display: Any):
+    def __init__(self, git_repo: Repo, results_repo: ResultsRepo, results_display: ModuleType):
         self.git_repo = git_repo
         self.results_repo = results_repo
         self.results_display = results_display
