@@ -9,7 +9,6 @@ BLOCKSIZE = 65536
 
 def get_dataset_hash(dataset: DataFrame):
     buffer = BytesIO()
-    print(dataset)
     dataset.to_parquet(buffer)
     data = buffer.getvalue()
 
@@ -20,7 +19,6 @@ def get_bytes_hash(data: bytes):
     hasher = hashlib.sha1()
     for i in range(0, len(data), BLOCKSIZE):
         block = data[i:i + BLOCKSIZE]
-        print(len(block))
         hasher.update(block)
     return hasher.hexdigest()
 
