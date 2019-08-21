@@ -16,10 +16,10 @@ machine learning experiments. We enable you to:
 Quick start
 -----------
 
-    > conda install pastry
-	> mkdir pastry-test; cd pastry-test
-	> pastry init
+    > conda install -c conda-forge pastry
+	> pastry init pastry-test
     Created new project in ~/pastry-test
+    > cd pastry-test
     > pastry -m "First experiment"
 	Running 1 experiment...
 
