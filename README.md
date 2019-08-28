@@ -16,24 +16,23 @@ machine learning experiments. We enable you to:
 Quick start
 -----------
 
-    > conda install -c conda-forge pastry
+    > git clone https://github.com/datapastry/pypastry.git
+    > pip install -e pypastry
 	> pastry init pastry-test
-    Created new project in ~/pastry-test
     > cd pastry-test
-    > pastry -m "First experiment"
-	Running 1 experiment...
+    > pastry run -m "First experiment"
+    Got dataset with 10 rows
+       Git hash Dataset hash            Run start                   Model          Score Duration (s)
+    0  aa87ce62     71e8f4fd  2019-08-28 06:39:07  DecisionTreeClassifier  0.933 ± 0.067         0.03
 
-          Date  Git hash   Dataset  Predictor  F1 score  F1 score SEM  Duration (s)           Comment
-    2019-07-01   98350bb  iris.csv  LinearSVC     0.153         0.052          0.32  First experiment
+Contributing
+------------
 
-To do
------
+PyPastry is at an early stage so there's plenty to do and we'd love to have your contribution.
 
- - Allow evaluation on groups of instances
- - Add a command 'pastry init' to set up a new pypastry repo
- - Store the CV split so that it can be reproduced exactly
- - Ensure that results files are unlikely to coincide on different branches
- - Refactor
- - Documentation
- - Tests
- - Website
+Check out the issues for a list of things that need doing and post a comment if you'd like to take
+something on.
+
+If you have an idea for something you'd like to do, create an issue.
+
+Thanks for using PyPastry!
