@@ -8,7 +8,7 @@ from pypastry.experiment import Experiment
 
 
 def get_experiment():
-    candidates = pd.DataFrame({
+    dataset = pd.DataFrame({
         'feature': [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
         'class': [True, False, True, True, False, False, True, True, False, False],
     })
@@ -16,4 +16,4 @@ def get_experiment():
     cross_validator = StratifiedKFold(n_splits=5)
     scorer = make_scorer(f1_score)
     label_column = 'class'
-    return Experiment(candidates, label_column, predictor, cross_validator, scorer)
+    return Experiment(dataset, label_column, predictor, cross_validator, scorer)
