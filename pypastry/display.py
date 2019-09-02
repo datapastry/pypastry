@@ -16,7 +16,6 @@ from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
 
 def cache_display(results_from_repo: List[Dict[str, Any]]):
     from pandas import DataFrame
-    print("Regenerating cache")
 
     results = []
     for result in results_from_repo:

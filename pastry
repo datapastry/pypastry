@@ -25,6 +25,9 @@ The command can be:
         elif args.command == 'run':
             from pypastry.commands.run import run
             run()
+        elif args.command == 'init':
+            from pypastry.commands.init import run
+            run()
         else:
             print("Unrecognised command: {}".format(args.command))
             parser.print_usage()
