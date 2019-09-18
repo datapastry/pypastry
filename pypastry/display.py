@@ -44,11 +44,14 @@ def cache_display(results_from_repo: List[Dict[str, Any]]):
         output_file.write(display)
 
 
-def print_cache_file(limit):
+def print_cache_file(limit = False):
     with open(DISPLAY_PATH) as display_file:
         read_lines = display_file.read()
         read_list = read_lines.split("\n")
-        limit = min(limit, len(read_list)-3)
+        if limit:
+            limit = min(limit, len(read_list)-3)
+        else:
+            limit = len(read_list)-3
         print(read_list[0])
         print("\n".join(read_list[-(2+limit):-2]))
         print(f'Cache provides:\n{read_list[-1]}')
