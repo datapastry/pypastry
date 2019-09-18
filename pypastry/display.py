@@ -9,12 +9,14 @@ This is because I don't like having to wait a second for things to be imported.
 I want my pastry now!
 """
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Iterator, TYPE_CHECKING
 
 from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
+if TYPE_CHECKING:
+    import pypastry
 
 
-def cache_display(results_from_repo: List[Dict[str, Any]]):
+def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
     from pandas import DataFrame
 
     results = []
