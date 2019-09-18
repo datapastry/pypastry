@@ -9,12 +9,15 @@ This is because I don't like having to wait a second for things to be imported.
 I want my pastry now!
 """
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Iterator, TYPE_CHECKING
 
 from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
+if TYPE_CHECKING:
+    import pypastry
 
 
-def cache_display(results_from_repo: List[Dict[str, Any]])-> None:
+=======
+def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
     """
     Caches results from the machine learning experiments and selects the recent 5 results tp be displayed
     Args:
@@ -40,7 +43,7 @@ def cache_display(results_from_repo: List[Dict[str, Any]])-> None:
         }
         results.append(result)
     results.sort(key=lambda row: row['Run start'])
-    recent_results = results[-5:]
+    recent_results = results
     results_dataframe = DataFrame(recent_results)
     display = repr(results_dataframe)
 
@@ -53,7 +56,9 @@ def cache_display(results_from_repo: List[Dict[str, Any]])-> None:
         output_file.write(display)
 
 
-def print_cache_file():
+
+=======
+def print_cache_file(limit = False):
     """
     Prints the 5 most recent experiment results to screen
     Args:
@@ -64,4 +69,12 @@ def print_cache_file():
 
     """
     with open(DISPLAY_PATH) as display_file:
-        print(display_file.read())
+        read_lines = display_file.read()
+        read_list = read_lines.split("\n")
+        if limit:
+            limit = min(limit, len(read_list)-3)
+        else:
+            limit = len(read_list)-3
+        print(read_list[0])
+        print("\n".join(read_list[-(2+limit):-2]))
+        print(f'Cache provides:\n{read_list[-1]}')
