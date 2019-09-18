@@ -19,7 +19,13 @@ class ExperimentRunner:
         self.results_repo = results_repo
         self.results_display = results_display
 
-    def run_experiment(self, experiment: Experiment, force: bool, message: str):
+    def run_experiment(
+        self,
+        experiment: Experiment,
+        force: bool,
+        message: str,
+        limit: int
+    ):
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or self.git_repo.is_dirty():
             print("Running evaluation")
@@ -28,7 +34,7 @@ class ExperimentRunner:
             self.results_display.cache_display(results)
         else:
             print("Clean repo, nothing to do")
-        self.results_display.print_cache_file()
+        self.results_display.print_cache_file(limit)
 
     def _run_evaluation(self, experiment: Experiment, message: str):
         X = experiment.dataset.drop(columns=[experiment.label_column])
