@@ -15,7 +15,7 @@ def run():
         mkdir(args.directory)
         chdir(args.directory)
 
-    repo = Repo.init('.')  #type:  git.repo.base.Repo
+    repo = Repo.init('.')  # type:  git.repo.base.Repo
     for filename in ['pie.py', '.gitignore']:
         source_file_path = path.join(path.dirname(__file__), '..', '..', 'data', filename)
         copyfile(source_file_path, filename)

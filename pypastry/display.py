@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     import pypastry
 
 
-def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']):
+def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
     from pandas import DataFrame
 
     results = []
