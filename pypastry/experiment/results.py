@@ -15,6 +15,15 @@ class ResultsRepo:
         self.results_path = results_path
 
     def save_results(self, run_infos: List[Dict[str, Any]], dataset_info: Dict[str, Any]) -> List[str]:
+        """
+        Stores all experiment results into a json file
+        Args:
+            run_infos (dict): Dictionary containing results information
+            daraset_info (dict): Dictionary contatining dataset information
+
+        Returns:
+            List of result files names
+        """
         try:
             mkdir(self.results_path)
         except FileExistsError:
@@ -22,6 +31,7 @@ class ResultsRepo:
         new_filenames = []
         for i, run_info in enumerate(run_infos):
             run_info['dataset'] = dataset_info
+            # TODO put git commit hash or combination of username and timestamp in the prefix to avoid merge conflicts
             with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json',
                                     dir=self.results_path, delete=False) as output_file:
                 json.dump(run_info, output_file, indent=4)

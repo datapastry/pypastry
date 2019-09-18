@@ -14,7 +14,16 @@ from typing import Any, Dict, List
 from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
 
 
-def cache_display(results_from_repo: List[Dict[str, Any]]):
+def cache_display(results_from_repo: List[Dict[str, Any]])-> None:
+    """
+    Caches results from the machine learning experiments and selects the recent 5 results tp be displayed
+    Args:
+        results_from_repo (list):
+
+    Returns:
+        None
+
+    """
     from pandas import DataFrame
 
     results = []
@@ -45,5 +54,14 @@ def cache_display(results_from_repo: List[Dict[str, Any]]):
 
 
 def print_cache_file():
+    """
+    Prints the 5 most recent experiment results to screen
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
     with open(DISPLAY_PATH) as display_file:
         print(display_file.read())
