@@ -50,6 +50,7 @@ def print_cache_file(limit = False):
         read_list = read_lines.split("\n")
         if limit:
             limit = min(limit, len(read_list)-3)
+            # to avoid printing more than there is
         else:
             limit = len(read_list)-3
         print(read_list[0])
