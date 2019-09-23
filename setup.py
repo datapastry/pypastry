@@ -13,6 +13,7 @@ setup(
     version='0.0.1',
     description='PyPastry machine learning experimentation framework',
     author='Daoud Clarke',
+    url='https://github.com/datapastry/pypastry',
     scripts=['pastry'],
     install_requires=['tomlkit', 'pandas', 'scikit-learn', 'pyarrow', 'gitpython'],
     package_dir ={'': 'pypastry'},
@@ -20,6 +21,7 @@ setup(
     long_description_content_type="text/markdown",
     classifiers = [
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],

@@ -1,0 +1,5 @@
+include LICENSE
+include mypy.ini
+recursive-include data *.py
+recursive-include pypastry *.py
+recursive-include tests *.py
