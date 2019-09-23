@@ -18,7 +18,6 @@ Quick start
 
 PyPastry requires python 3.5 or greater.
 
-    > git clone https://github.com/datapastry/pypastry.git
     > pip install pypastry
 	> pastry init pastry-test
     > cd pastry-test
