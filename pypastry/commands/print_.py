@@ -7,7 +7,7 @@ from pypastry.paths import RESULTS_PATH
 
 def run():
     parser = argparse.ArgumentParser(prog='pastry print')
-    parser.add_argument('-l', '--limit', type=int, default=False, help='Limit lines to print')
+    parser.add_argument('-l', '--limit', type=int, default=None, help='Limit lines to print')
 
     args = parser.parse_args(sys.argv[2:])
     try:
