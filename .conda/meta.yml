@@ -54,10 +54,7 @@ about:
   license_file: LICENSE
   summary: PyPastry machine learning experimentation framework
   doc_url: 
-  dev_url: 
-
+  dev_url:  
 extra:
   recipe-maintainers:
     -  mrrutledge
-
-
