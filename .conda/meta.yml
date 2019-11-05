@@ -1,0 +1,60 @@
+{% set name = "pypastry" %}
+{% set version = "0.0.1" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+
+  #url: ../dist/{{ name }}-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: a1c81cd0e01fe69637a9c6393dd6e97901d5c5fb8270553c9b6a61978fe0c063
+
+build:
+  #number: 0
+  #noarch: python
+  #script: python setup.py install 
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  host:
+ #  - conda-build 
+    - gitpython
+    - pandas
+    - pip
+    - pyarrow
+    - python
+    - scikit-learn
+    - tomlkit
+  run:
+    - gitpython
+    - pandas
+    - pyarrow
+    - python
+    - scikit-learn
+    - tomlkit
+
+  test:
+    imports:
+      -pypastry
+      -pandas 
+      -sklearn
+
+    requires:
+      -python
+      -unittest
+      
+
+about:
+  home: https://github.com/datapastry/pypastry
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: PyPastry machine learning experimentation framework
+  doc_url: 
+  dev_url:  
+extra:
+  recipe-maintainers:
+    -  mrrutledge
