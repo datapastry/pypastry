@@ -1,6 +1,6 @@
 import sys
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 if sys.version_info < (3, 5):
     sys.exit('Sorry, PyPastry requires Python version 3.5 or greater')
@@ -16,14 +16,12 @@ setup(
     url='https://github.com/datapastry/pypastry',
     scripts=['pastry'],
     install_requires=['tomlkit', 'pandas', 'scikit-learn', 'pyarrow', 'gitpython'],
-    package_dir ={'': 'pypastry'},
-    long_description = long_description,
-    long_description_content_type="text/markdown",
-    classifiers = [
+    packages=find_packages(),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    classifiers=[
         "Programming Language :: Python :: 3.5",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
+        "Operating System :: OS Independent"],
     python_requires='>=3.5',
-
-)
+    )

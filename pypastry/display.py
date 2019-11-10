@@ -57,4 +57,5 @@ def print_cache_file(limit = False):
             limit = len(read_list)-3
         print(read_list[0])
         print("\n".join(read_list[-(2+limit):-2]))
-        print(f'Cache provides:\n{read_list[-1]}')
+        #print(f'Cache provides:\n{read_list[-1]}')
+        print('Cache provides: \n {}'.format(read_list[-1]))
