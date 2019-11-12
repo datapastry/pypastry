@@ -1,5 +1,6 @@
 include LICENSE
 include mypy.ini
 recursive-include data *.py
+recursive-include data  *.gitignore
 recursive-include pypastry *.py
 recursive-include tests *.py
