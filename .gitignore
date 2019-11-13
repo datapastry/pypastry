@@ -99,6 +99,8 @@ celerybeat-schedule
 
 # mkdocs documentation
 /site
+/sample
+
 
 # mypy
 .mypy_cache/
@@ -107,5 +109,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Env
+.vscode
+/pastry-test
 
 # End of https://www.gitignore.io/api/git,python
