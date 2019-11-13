@@ -18,7 +18,7 @@ Quick start
 
 PyPastry requires python 3.5 or greater.
 
-    > pip install pypastry
+    > pip install pypastry==0.0.1.dev1
 	> pastry init pastry-test
     > cd pastry-test
     > pastry run -m "First experiment"
