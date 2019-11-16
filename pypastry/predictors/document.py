@@ -7,10 +7,12 @@ from sklearn.pipeline import Pipeline
 
 
 class DocumentClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, text_columns):
+    def __init__(self, text_column: str):
+        self.text_column = text_column
+        print("Text columns", text_column)
         self.pipeline = Pipeline([
             ('column', ColumnTransformer([
-                ('count', CountVectorizer(), text_columns),
+                ('count', CountVectorizer(), text_column),
             ])),
             # ('tfidf', TfidfTransformer()),
             ('After tfidf', DebugTransformer()),
