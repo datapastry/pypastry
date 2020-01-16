@@ -21,7 +21,7 @@ def run():
     import pie
     experiment = pie.get_experiment()
 
-    git_repo = Repo(REPO_PATH)  # type: pypastry.experiment.Experiment
+    git_repo = Repo(REPO_PATH, search_parent_directories=True)  # type: pypastry.experiment.Experiment
     results_repo = ResultsRepo(RESULTS_PATH)  # type: pypastry.experiment.results.ResultsRepo
     runner = ExperimentRunner(git_repo, results_repo, display)  # type:
     # pypastry.experiment.evaluation.ExperimentRunner

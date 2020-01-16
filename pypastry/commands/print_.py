@@ -16,6 +16,6 @@ def run():
         from pypastry.experiment.results import ResultsRepo
         from git import Repo
         results_repo = ResultsRepo(RESULTS_PATH)
-        results = results_repo.get_results(Repo('.'))
+        results = results_repo.get_results(Repo('.', search_parent_directories=True))
         cache_display(results)
         print_cache_file(args.limit)
