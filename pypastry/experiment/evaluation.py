@@ -40,7 +40,7 @@ class ExperimentRunner:
     def _run_evaluation(self, experiment: Experiment, message: str):
         run_info = _evaluate_predictor(experiment)
         self.git_repo.git.add(update=True)
-        dataset_hash = get_dataset_hash(experiment.dataset)
+        dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         dataset_info = {
             'hash': dataset_hash,
             'columns': experiment.dataset.columns.tolist(),
