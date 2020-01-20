@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from git import Repo
 from joblib import Parallel, delayed
+from pandas import Series
 from pypastry.experiment import Experiment
 from pypastry.experiment.hasher import get_dataset_hash
 from pypastry.experiment.results import ResultsRepo
@@ -93,7 +94,10 @@ def _get_scores(experiment: Experiment):
     X = dataset.drop(columns=[experiment.label_column])
     y = dataset[experiment.label_column]
     if experiment.group_column is None:
-        groups = None
+        if experiment.average_scores_on_instances:
+            groups = Series(range(len(X)), index=X.index)
+        else:
+            groups = None
     else:
         groups = X[experiment.group_column]
         X = X.drop(columns=[experiment.group_column])
