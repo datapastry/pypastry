@@ -16,7 +16,17 @@ if TYPE_CHECKING:
     import pypastry
 
 
+=======
 def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
+    """
+    Caches results from the machine learning experiments and selects the recent 5 results tp be displayed
+    Args:
+        results_from_repo (list):
+
+    Returns:
+        None
+
+    """
     from pandas import DataFrame
 
     results = []
@@ -46,7 +56,18 @@ def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Resul
         output_file.write(display)
 
 
+
+=======
 def print_cache_file(limit = False):
+    """
+    Prints the 5 most recent experiment results to screen
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
     with open(DISPLAY_PATH) as display_file:
         read_lines = display_file.read()
         read_list = read_lines.split("\n")
