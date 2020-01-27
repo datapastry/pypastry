@@ -1,12 +1,8 @@
 import json
-import os
-from glob import glob
 from os import mkdir
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Dict, Any, List, NamedTuple
-
-from git import Repo
 
 Result = NamedTuple('Result', [('data', Dict[str, Any]), ('git_hash', str)])
 
@@ -24,7 +20,7 @@ class ResultsRepo:
         run_info['dataset'] = dataset_info
         with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json',
                                 dir=self.results_path, delete=False) as output_file:
-            json.dump(run_info, output_file, indent=4)
+            json.dump(run_info, output_file, indent=4, default=str)
             output_file.flush()
         new_filenames.append(output_file.name)
         return new_filenames
