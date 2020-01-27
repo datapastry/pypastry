@@ -1,13 +1,8 @@
 import json
-import os
-from glob import glob
-from json import JSONEncoder
 from os import mkdir
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Dict, Any, List, NamedTuple
-
-from git import Repo
 
 Result = NamedTuple('Result', [('data', Dict[str, Any]), ('git_hash', str)])
 
