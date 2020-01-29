@@ -39,7 +39,7 @@ class ExperimentRunner:
         self.results_display.print_cache_file(limit)
 
     def _run_evaluation(self, experiment: Experiment, message: str):
-        run_info = _evaluate_predictor(experiment)
+        run_info = evaluate_predictor(experiment)
         self.git_repo.git.add(update=True)
         dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         dataset_info = {
@@ -51,7 +51,7 @@ class ExperimentRunner:
         self.git_repo.index.commit(message)
 
 
-def _evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
+def evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
     start = datetime.utcnow()
 
     scores = _get_scores(experiment)
