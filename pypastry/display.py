@@ -17,7 +17,8 @@ if TYPE_CHECKING:
 
 
 def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
-    from pandas import DataFrame
+    from pandas import DataFrame, set_option
+    set_option('display.max_rows', None)
 
     results = []
     for result in results_from_repo:

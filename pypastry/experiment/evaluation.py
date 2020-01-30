@@ -1,6 +1,6 @@
 from datetime import datetime
 from types import ModuleType
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, List
 
 import numpy as np
 import pandas as pd
@@ -39,7 +39,7 @@ class ExperimentRunner:
         self.results_display.print_cache_file(limit)
 
     def _run_evaluation(self, experiment: Experiment, message: str):
-        run_info = _evaluate_predictor(experiment)
+        run_info = evaluate_predictor(experiment)
         self.git_repo.git.add(update=True)
         dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         dataset_info = {
@@ -51,10 +51,10 @@ class ExperimentRunner:
         self.git_repo.index.commit(message)
 
 
-def _evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
+def evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
     start = datetime.utcnow()
 
-    scores = _get_scores(experiment)
+    scores, additional_info = _get_scores_and_additional_info(experiment)
 
     end = datetime.utcnow()
 
@@ -71,6 +71,7 @@ def _evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
         'run_seconds': (end - start).total_seconds(),
         'results': results,
         'model_info': model_info,
+        'additional_info': additional_info,
     }
     return run_info
 
@@ -81,7 +82,7 @@ def get_model_info(model: BaseEstimator):
     return info
 
 
-def _get_scores(experiment: Experiment):
+def _get_scores_and_additional_info(experiment: Experiment) -> Tuple[List[float], List[Any]]:
     if experiment.test_set is not None:
         assert experiment.cross_validator is None, "Cannot use a cross validator with train test split"
         dataset = pd.concat([experiment.dataset, experiment.test_set])
@@ -109,18 +110,20 @@ def _get_scores(experiment: Experiment):
     # independent, and that it is pickle-able.
     parallel = Parallel(n_jobs=None, verbose=False,
                         pre_dispatch='2*n_jobs')
-    scores = parallel(
+    scores_and_additional = parallel(
         delayed(_fit_and_predict)(
-            clone(experiment.predictor), X, y, train, test, groups, experiment.scorer)
+            clone(experiment.predictor), X, y, train, test, groups, experiment.scorer, experiment.additional_info)
         for train, test in train_test)
-    return scores
+    return zip(*scores_and_additional)
 
 
-def _fit_and_predict(estimator: BaseEstimator, X, y, train, test, groups, scorer):
+def _fit_and_predict(estimator: BaseEstimator, X, y, train, test, groups, scorer, additional_info):
     if groups is not None:
-        return _fit_and_predict_groups(X, estimator, groups, scorer, test, train, y)
+        scores = _fit_and_predict_groups(X, estimator, groups, scorer, test, train, y)
     else:
-        return _fit_and_predict_simple(X, estimator, scorer, test, train, y)
+        scores = _fit_and_predict_simple(X, estimator, scorer, test, train, y)
+    additional = additional_info(estimator) if additional_info is not None else None
+    return scores, additional
 
 
 def _fit_and_predict_simple(X, estimator, scorer, test, train, y):
@@ -143,13 +146,11 @@ def _fit_and_predict_groups(X, estimator, groups, scorer, test, train, y):
     test_df = pd.DataFrame(X_test)
     test_df['y'] = y_test
     test_df['groups'] = groups_test
-    # test_df = pd.DataFrame({'X': X_test.values, 'y': y_test.values, 'groups': groups_test.values})
     test_groups = test_df.groupby('groups')
     scores = []
     for key, group in test_groups:
         X_group = group[X.columns]
         score = scorer(estimator, X_group, group['y'])
         scores.append(score)
-    print("SCORES", scores)
     return scores
 
