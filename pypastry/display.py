@@ -11,31 +11,15 @@ I want my pastry now!
 import os
 from typing import Any, Dict, List, Iterator, TYPE_CHECKING
 
+from pandas import Series
+
 from pypastry.paths import DISPLAY_PATH, DISPLAY_DIR
 if TYPE_CHECKING:
     import pypastry
 
 
 def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
-    from pandas import DataFrame, set_option
-    set_option('display.max_rows', None)
-
-    results = []
-    for result in results_from_repo:
-        data = result.data
-        result = {
-            'Git hash': result.git_hash,
-            'Dataset hash': data['dataset']['hash'][:8],
-            'Run start': data['run_start'][:19],
-            'Model': data['model_info']['type'],
-            'Score': "{:.3f} ± {:.3f}".format(data['results']['test_score'],
-                                              data['results']['test_score_sem']),
-            'Duration (s)': "{:.2f}".format(data['run_seconds']),
-        }
-        results.append(result)
-    results.sort(key=lambda row: row['Run start'])
-    recent_results = results
-    results_dataframe = DataFrame(recent_results)
+    results_dataframe = _get_results_dataframe(results_from_repo)
     display = repr(results_dataframe)
 
     try:
@@ -45,6 +29,38 @@ def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Resul
 
     with open(DISPLAY_PATH, 'w') as output_file:
         output_file.write(display)
+
+
+def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> 'DataFrame':
+    from pandas import DataFrame, set_option
+    set_option('display.max_rows', None)
+    set_option('display.max_columns', None)
+    set_option('display.width', None)
+    set_option('display.max_colwidth', -1)
+    results = []
+    for result in results_from_repo:
+        data = result.data
+        result = {
+            'Git hash': result.git_hash,
+            'Dataset hash': data['dataset']['hash'][:8],
+            'Run start': data['run_start'][:19],
+            'Model': data['model_info']['type'],
+            'Duration (s)': "{:.2f}".format(data['run_seconds']),
+        }
+
+        try:
+            scores = DataFrame(data['results'])
+            for row in scores.itertuples():
+                result[row.Index] = "{:.3f} ± {:.3f}".format(row.test_score, row.test_score_sem)
+        except ValueError:
+            result['Score'] = "{:.3f} ± {:.3f}".format(data['results']['test_score'],
+                                                       data['results']['test_score_sem'])
+
+        results.append(result)
+    results.sort(key=lambda row: row['Run start'])
+    recent_results = results
+    results_dataframe = DataFrame(recent_results)
+    return results_dataframe
 
 
 def print_cache_file(limit=False):
