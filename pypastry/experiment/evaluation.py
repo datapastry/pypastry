@@ -8,15 +8,13 @@ import pandas as pd
 from git import Repo
 from joblib import Parallel, delayed
 from pandas import Series
+from sklearn.base import BaseEstimator, is_classifier, clone
 from sklearn.metrics._scorer import _BaseScorer
+from sklearn.model_selection import check_cv, PredefinedSplit
 
 from pypastry.experiment import Experiment
 from pypastry.experiment.hasher import get_dataset_hash
 from pypastry.experiment.results import ResultsRepo
-from scipy.stats import sem
-from sklearn.base import BaseEstimator, is_classifier, clone
-from sklearn.model_selection import check_cv, PredefinedSplit
-
 
 MAX_PARAMETER_VALUE_LENGTH = 500
 
@@ -32,6 +30,7 @@ class ExperimentRunner:
         experiment: Experiment,
         force: bool,
         message: str,
+        limit: int = None,
     ):
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or self.git_repo.is_dirty():
@@ -41,7 +40,7 @@ class ExperimentRunner:
             self.results_display.cache_display(results)
         else:
             print("Clean repo, nothing to do")
-        self.results_display.print_cache_file()
+        self.results_display.print_cache_file(limit)
 
     def _run_evaluation(self, experiment: Experiment, message: str):
         run_info = evaluate_predictor(experiment)
@@ -63,11 +62,8 @@ def evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
 
     end = datetime.utcnow()
 
-    print("Scores", scores)
     scores_array = pd.DataFrame(scores)
-    print("Score array", scores_array)
     mean_score = scores_array.mean().to_dict()
-    print("Mean score tupe", type(mean_score))
     sem_score = scores_array.sem().to_dict()
     results = {'test_score': mean_score, 'test_score_sem': sem_score}
 
@@ -124,7 +120,6 @@ def _get_scores_and_additional_info(experiment: Experiment) -> Tuple[List[float]
         delayed(_fit_and_predict)(
             clone(experiment.predictor), X, y, train, test, groups, experiment.scorer, experiment.additional_info)
         for train, test in train_test)
-    print("Scores and additional", scores_and_additional)
     scores_lists, additional = zip(*scores_and_additional)
     scores = [score for score_list in scores_lists for score in score_list]
     return scores, additional
