@@ -48,9 +48,13 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
             'Duration (s)': "{:.2f}".format(data['run_seconds']),
         }
 
-        scores = DataFrame(data['results'])
-        for row in scores.itertuples():
-            result[row.Index] = "{:.3f} ± {:.3f}".format(row.test_score, row.test_score_sem)
+        try:
+            scores = DataFrame(data['results'])
+            for row in scores.itertuples():
+                result[row.Index] = "{:.3f} ± {:.3f}".format(row.test_score, row.test_score_sem)
+        except ValueError:
+            result['Score'] = "{:.3f} ± {:.3f}".format(data['results']['test_score'],
+                                                       data['results']['test_score_sem'])
 
         results.append(result)
     results.sort(key=lambda row: row['Run start'])
