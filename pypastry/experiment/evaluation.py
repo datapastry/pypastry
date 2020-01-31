@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from types import ModuleType
 from typing import Any, Dict, Tuple, List
@@ -13,6 +14,9 @@ from pypastry.experiment.results import ResultsRepo
 from scipy.stats import sem
 from sklearn.base import BaseEstimator, is_classifier, clone
 from sklearn.model_selection import check_cv, PredefinedSplit
+
+
+MAX_PARAMETER_VALUE_LENGTH = 500
 
 
 class ExperimentRunner:
@@ -77,7 +81,9 @@ def evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
 
 
 def get_model_info(model: BaseEstimator):
-    info = model.get_params()
+    all_info = model.get_params()
+    info = {key: value for key, value in all_info.items()
+            if len(json.dumps(value, default=str)) < MAX_PARAMETER_VALUE_LENGTH}
     info['type'] = type(model).__name__
     return info
 
