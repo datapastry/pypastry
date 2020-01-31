@@ -8,6 +8,8 @@ import pandas as pd
 from git import Repo
 from joblib import Parallel, delayed
 from pandas import Series
+from sklearn.metrics._scorer import _BaseScorer
+
 from pypastry.experiment import Experiment
 from pypastry.experiment.hasher import get_dataset_hash
 from pypastry.experiment.results import ResultsRepo
@@ -30,7 +32,6 @@ class ExperimentRunner:
         experiment: Experiment,
         force: bool,
         message: str,
-        limit: int
     ):
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or self.git_repo.is_dirty():
@@ -40,7 +41,7 @@ class ExperimentRunner:
             self.results_display.cache_display(results)
         else:
             print("Clean repo, nothing to do")
-        self.results_display.print_cache_file(limit)
+        self.results_display.print_cache_file()
 
     def _run_evaluation(self, experiment: Experiment, message: str):
         run_info = evaluate_predictor(experiment)
@@ -62,9 +63,12 @@ def evaluate_predictor(experiment: Experiment) -> Dict[str, Any]:
 
     end = datetime.utcnow()
 
-    scores_array = np.hstack(scores)
-    mean_score = scores_array.mean()
-    sem_score = sem(scores_array)
+    print("Scores", scores)
+    scores_array = pd.DataFrame(scores)
+    print("Score array", scores_array)
+    mean_score = scores_array.mean().to_dict()
+    print("Mean score tupe", type(mean_score))
+    sem_score = scores_array.sem().to_dict()
     results = {'test_score': mean_score, 'test_score_sem': sem_score}
 
     model_info = get_model_info(experiment.predictor)
@@ -120,7 +124,10 @@ def _get_scores_and_additional_info(experiment: Experiment) -> Tuple[List[float]
         delayed(_fit_and_predict)(
             clone(experiment.predictor), X, y, train, test, groups, experiment.scorer, experiment.additional_info)
         for train, test in train_test)
-    return zip(*scores_and_additional)
+    print("Scores and additional", scores_and_additional)
+    scores_lists, additional = zip(*scores_and_additional)
+    scores = [score for score_list in scores_lists for score in score_list]
+    return scores, additional
 
 
 def _fit_and_predict(estimator: BaseEstimator, X, y, train, test, groups, scorer, additional_info):
@@ -132,17 +139,17 @@ def _fit_and_predict(estimator: BaseEstimator, X, y, train, test, groups, scorer
     return scores, additional
 
 
-def _fit_and_predict_simple(X, estimator, scorer, test, train, y):
+def _fit_and_predict_simple(X, estimator, scorers, test, train, y):
     X_train = X.iloc[train]
     y_train = y.iloc[train]
     estimator.fit(X_train, y_train)
     X_test = X.iloc[test]
     y_test = y.iloc[test]
-    score = scorer(estimator, X_test, y_test)
+    score = _score(scorers, estimator, X_test, y_test)
     return [score]
 
 
-def _fit_and_predict_groups(X, estimator, groups, scorer, test, train, y):
+def _fit_and_predict_groups(X, estimator, groups, scorers, test, train, y):
     X_train = X.iloc[train]
     y_train = y.iloc[train]
     estimator.fit(X_train, y_train)
@@ -156,7 +163,17 @@ def _fit_and_predict_groups(X, estimator, groups, scorer, test, train, y):
     scores = []
     for key, group in test_groups:
         X_group = group[X.columns]
-        score = scorer(estimator, X_group, group['y'])
+        score = _score(scorers, estimator, X_group, group['y'])
         scores.append(score)
     return scores
 
+
+def _score(scorers: List[_BaseScorer], estimator, X_test, y_test):
+    scores = {}
+    for scorer in scorers:
+        score = scorer(estimator, X_test, y_test)
+        score_name = scorer._score_func.__name__
+        sign = scorer._sign
+        score_ignoring_sign = score*sign
+        scores[score_name] = score_ignoring_sign
+    return scores
