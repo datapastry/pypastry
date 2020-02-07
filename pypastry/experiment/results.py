@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Dict, Any, List, NamedTuple
 
-Result = NamedTuple('Result', [('data', Dict[str, Any]), ('git_hash', str)])
+Result = NamedTuple('Result', [('data', Dict[str, Any]), ('git_hash', str), ('summary', str)])
 
 
 class ResultsRepo:
@@ -28,6 +28,8 @@ class ResultsRepo:
     def get_results(self, git_repo):
         for path in Path(self.results_path).glob('*'):
             with open(path) as results_file:
-                git_hash = next(git_repo.iter_commits(paths=path.absolute())).hexsha[:8]
+                git_commit = next(git_repo.iter_commits(paths=path.absolute()))
+                summary = git_commit.summary
+                git_hash = git_commit.hexsha[:8]
                 result_json = json.load(results_file)
-                yield Result(result_json, git_hash)
+                yield Result(result_json, git_hash, summary)
