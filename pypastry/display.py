@@ -61,7 +61,7 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
         results.append(result)
     results_dataframe = DataFrame(results)
     results_dataframe['Summary'] = summaries
-    return results_dataframe.sort_values(by='Run start')
+    return results_dataframe.sort_values(by='Run start').reset_index()
 
 
 def print_cache_file(limit=False):
