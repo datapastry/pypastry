@@ -1,4 +1,5 @@
 import json
+import os
 from os import mkdir
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -26,7 +27,9 @@ class ResultsRepo:
         return new_filenames
 
     def get_results(self, git_repo):
-        for path in Path(self.results_path).glob('*'):
+        paths = list(Path(self.results_path).glob('*'))
+        paths.sort(key=os.path.getctime)
+        for path in paths[-40:]:
             with open(path) as results_file:
                 git_commit = next(git_repo.iter_commits(paths=path.absolute()))
                 summary = git_commit.summary
