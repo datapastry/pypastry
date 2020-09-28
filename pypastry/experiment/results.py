@@ -21,6 +21,7 @@ class ResultsRepo:
         run_info['dataset'] = dataset_info
         with NamedTemporaryFile(mode='w', prefix='result-', suffix='.json',
                                 dir=self.results_path, delete=False) as output_file:
+            print("Run info", run_info)
             json.dump(run_info, output_file, indent=4, default=str)
             output_file.flush()
         new_filenames.append(output_file.name)

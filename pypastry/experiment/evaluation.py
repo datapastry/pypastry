@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from types import ModuleType
-from typing import Any, Dict, Tuple, List
+from typing import Any, Dict, Tuple, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -33,30 +33,34 @@ class ExperimentRunner:
         force: bool,
         message: str,
         limit: int = None,
+        save: bool = True,
     ):
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or self.git_repo.is_dirty():
             print("Running evaluation")
-            estimators = self._run_evaluation(experiment, message)
-            results = self.results_repo.get_results(self.git_repo)
-            self.results_display.cache_display(results)
+            estimators = self._run_evaluation(experiment, message, save=save)
+            if save:
+                results = self.results_repo.get_results(self.git_repo)
+                self.results_display.cache_display(results)
         else:
             print("Clean repo, nothing to do")
             estimators = []
-        self.results_display.print_cache_file(limit)
+        if save:
+            self.results_display.print_cache_file(limit)
         return estimators
 
-    def _run_evaluation(self, experiment: Experiment, message: str):
+    def _run_evaluation(self, experiment: Experiment, message: str, save: bool):
         run_info, estimators = evaluate_predictor(experiment)
-        self.git_repo.git.add(update=True)
-        dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
-        dataset_info = {
-            'hash': dataset_hash,
-            'columns': experiment.dataset.columns.tolist(),
-        }
-        new_filenames = self.results_repo.save_results(run_info, dataset_info)
-        self.git_repo.index.add(new_filenames)
-        self.git_repo.index.commit(message)
+        if save:
+            self.git_repo.git.add(update=True)
+            dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
+            dataset_info = {
+                'hash': dataset_hash,
+                'columns': experiment.dataset.columns.tolist(),
+            }
+            new_filenames = self.results_repo.save_results(run_info, dataset_info)
+            self.git_repo.index.add(new_filenames)
+            self.git_repo.index.commit(message)
         return estimators
 
 
@@ -155,6 +159,10 @@ def _fit_and_predict_simple(X, estimator, scorers, test, train, y):
     estimator.fit(X_train, y_train)
     X_test = X.iloc[test]
     y_test = y.iloc[test]
+    y_pred = estimator.predict(X_test)
+    with open('predictions.json', 'a') as output:
+        json.dump({'actual': y_test.tolist(), 'predicted': y_pred.tolist()}, output)
+        output.write('\n')
     score = _score(scorers, estimator, X_test, y_test)
     return [(None, score)]
 
@@ -189,9 +197,9 @@ def _score(scorers: List[_BaseScorer], estimator, X_test, y_test):
     return scores
 
 
-def run_experiment(experiment, message, force=False):
+def run_experiment(experiment, message, force=False, save=True):
     git_repo = Repo(REPO_PATH, search_parent_directories=True)  # type: pypastry.experiment.Experiment
     results_repo = ResultsRepo(RESULTS_PATH)  # type: pypastry.experiment.results.ResultsRepo
     runner = ExperimentRunner(git_repo, results_repo, display)  # type:
     # pypastry.experiment.evaluation.ExperimentRunner
-    return runner.run_experiment(experiment, force, message)
+    return runner.run_experiment(experiment, force, message, save=save)
