@@ -38,9 +38,9 @@ class ExperimentRunner:
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or self.git_repo.is_dirty():
             print("Running evaluation")
-            estimators = self._run_evaluation(experiment, message, save=save)
+            estimators, dataset_hash = self._run_evaluation(experiment, message, save=save)
             if save:
-                results = self.results_repo.get_results(self.git_repo)
+                results = self.results_repo.get_results(self.git_repo, dataset_hash=dataset_hash)
                 self.results_display.cache_display(results)
         else:
             print("Clean repo, nothing to do")
@@ -51,9 +51,9 @@ class ExperimentRunner:
 
     def _run_evaluation(self, experiment: Experiment, message: str, save: bool):
         run_info, estimators = evaluate_predictor(experiment)
+        dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         if save:
             self.git_repo.git.add(update=True)
-            dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
             dataset_info = {
                 'hash': dataset_hash,
                 'columns': experiment.dataset.columns.tolist(),
@@ -61,7 +61,7 @@ class ExperimentRunner:
             new_filenames = self.results_repo.save_results(run_info, dataset_info)
             self.git_repo.index.add(new_filenames)
             self.git_repo.index.commit(message)
-        return estimators
+        return estimators, dataset_hash
 
 
 def evaluate_predictor(experiment: Experiment) -> Dict[str, Tuple[Any, List[BaseEstimator]]]:

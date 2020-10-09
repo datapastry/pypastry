@@ -27,13 +27,15 @@ class ResultsRepo:
         new_filenames.append(output_file.name)
         return new_filenames
 
-    def get_results(self, git_repo):
+    def get_results(self, git_repo, dataset_hash=None):
         paths = list(Path(self.results_path).glob('*'))
         paths.sort(key=os.path.getctime)
-        for path in paths[-40:]:
+        for path in paths:
             with open(path) as results_file:
                 git_commit = next(git_repo.iter_commits(paths=path.absolute()))
                 summary = git_commit.summary
                 git_hash = git_commit.hexsha[:8]
                 result_json = json.load(results_file)
+                if dataset_hash is not None and result_json['dataset']['hash'] != dataset_hash:
+                    continue
                 yield Result(result_json, git_hash, summary)
