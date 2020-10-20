@@ -160,11 +160,16 @@ def _fit_and_predict_simple(X, estimator, scorers, test, train, y):
     X_test = X.iloc[test]
     y_test = y.iloc[test]
     y_pred = estimator.predict(X_test)
-    with open('predictions.json', 'a') as output:
-        json.dump({'actual': y_test.tolist(), 'predicted': y_pred.tolist()}, output)
-        output.write('\n')
+    _save_results(X_test, y_test, y_pred.T[1])
     score = _score(scorers, estimator, X_test, y_test)
     return [(None, score)]
+
+
+def _save_results(X_test, y_test, y_pred):
+    dataset = X_test.copy()
+    dataset['actual'] = y_test
+    dataset['predicted'] = y_pred
+    dataset.to_csv('predictions.csv')
 
 
 def _fit_and_predict_groups(X, estimator, groups, scorers, test, train, y):
