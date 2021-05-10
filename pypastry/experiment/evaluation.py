@@ -59,8 +59,8 @@ class ExperimentRunner:
             'hash': dataset_hash,
             'columns': experiment.dataset.columns.tolist(),
         }
-        git_hash_msg = ("dirty_" if self.git_repo.is_dirty() else "") + self.git_repo.head.object.hexsha
-        _ = self.results_repo.save_results(run_info, dataset_info, git_hash=git_hash_msg)
+        git_hash_msg = ("dirty_" if self.git_repo.is_dirty() else "") + self.git_repo.head.object.hexsha[:8]
+        _ = self.results_repo.save_results(run_info, dataset_info, git_hash_msg=git_hash_msg)
         return estimators
 
 
