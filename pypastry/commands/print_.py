@@ -1,7 +1,4 @@
 import argparse
-import sys
-
-import git
 
 from pypastry.display import print_cache_file, cache_display, _get_results_dataframe
 from pypastry.paths import RESULTS_PATH
@@ -13,17 +10,16 @@ def run():
     parser.add_argument('-e', '--export', type=str, required=False, help='File to output the results in CSV format')
 
     args = parser.parse_args(sys.argv[2:])
-    repo = git.Repo(search_parent_directories=True)
     if args.export is not None:
         results = get_results()
-        results_dataframe = _get_results_dataframe(results, repo.head.object.hexsha)
+        results_dataframe = _get_results_dataframe(results)
         results_dataframe.to_csv(args.export)
         return
     try:
         print_cache_file(args.limit)
     except FileNotFoundError:
         results = get_results()
-        cache_display(results, repo.head.object.hexsha)
+        cache_display(results)
         print_cache_file(args.limit)
 
 
