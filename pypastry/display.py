@@ -42,8 +42,9 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
     results_from_repo = list(results_from_repo)
     for repo_result in results_from_repo:
         data = repo_result.data
+        git_hash_msg = ("dirty_" if repo_result.dirty else "") + repo_result.git_hash
         result = {
-            'Git hash': repo_result.git_hash,
+            'Git hash': git_hash_msg,
             'Dataset hash': data['dataset']['hash'][:8],
             'Run start': data['run_start'][:19],
             'Model': data['model_info']['type'],
