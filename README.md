@@ -18,7 +18,7 @@ Quick start
 
 PyPastry requires python 3.5 or greater.
 
-    > pip install pypastry==0.0.1.dev1
+    > pip install pypastry==0.2.0
 	> pastry init pastry-test
     > cd pastry-test
     > pastry run -m "First experiment"
@@ -55,12 +55,12 @@ When you type `pastry run`, PyPastry does this:
  - For each train and test set, it trains the `predictor` on the train set and generate predictions
    on the test set, and computes the score on the test set using the `scorer`.
  - Generates a results file in JSON format and stores it in a folder called `results`
- - Adds the new file and any modified files to git staging and runs a git commit.
  - Outputs the results of the experiment.
+ - Your repo has to be clean (no (un)staged changes) for experiment to run. If you want to use dirty repo, you can with calling pypsatry with force flag `-f`. However, results will not be possible to bond with exact code state.
 
 The results includes:
- - Git hash: the commit identifier from git that allows you to return to this version of the code
-   at any later point in time.
+ - Git hash: the commit identifier of the code used to run the experiment. There might be `"dirty_"` prefix indicating that unclean repo was used with this experiment. The hash belongs to the latest commit, however, the information about (un)staged changes is lost.
+ - Git summary: A summary note
  - Dataset hash: a hash generated from the dataset that will change if the dataset changes.
  - Run start: the time that the experiment run started
  - Model: the name of the `predictor` class used

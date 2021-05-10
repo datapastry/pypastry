@@ -35,8 +35,8 @@ class ExperimentRunner:
     def run_experiment(
         self,
         experiment: Experiment,
-        message: str,
-        force: bool,
+        message: str = "",
+        force: bool = False,
         limit: int = None,
     ):
 
@@ -197,7 +197,7 @@ def _score(scorers: List[_BaseScorer], estimator, X_test, y_test):
     return scores
 
 
-def run_experiment(experiment, message, force=False):
+def run_experiment(experiment, message="", force=False):
     git_repo = Repo(REPO_PATH, search_parent_directories=True)  # type: pypastry.experiment.Experiment
     results_repo = ResultsRepo(RESULTS_PATH)  # type: pypastry.experiment.results.ResultsRepo
     runner = ExperimentRunner(git_repo, results_repo, display)  # type:

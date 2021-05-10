@@ -31,7 +31,7 @@ def test_simple_evaluation(dirty=False, force=False):
     runner = ExperimentRunner(git_mock, results_repo_mock, results_display_mock)
 
     # When
-    runner.run_experiment(experiment, force)
+    runner.run_experiment(experiment, "", force)
 
     # Then
     call_args_list = results_repo_mock.save_results.call_args_list
@@ -71,7 +71,7 @@ def test_grouped_evaluation():
     results_display_mock = Mock()
     runner = ExperimentRunner(git_mock, results_repo_mock, results_display_mock)
 
-    runner.run_experiment(experiment, False)
+    runner.run_experiment(experiment, "", False)
 
     assert 1 == len(results_repo_mock.save_results.call_args_list)
     run_info, dataset_info = results_repo_mock.save_results.call_args[0]
