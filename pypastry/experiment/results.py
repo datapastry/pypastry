@@ -27,7 +27,7 @@ class ResultsRepo:
 
     def get_results(self, git_repo):
         for path in Path(self.results_path).glob('*'):
-            with open(path) as results_file:
+            with open(str(path)) as results_file:
                 git_commit = next(git_repo.iter_commits(paths=path.absolute()))
                 summary = git_commit.summary
                 git_hash = git_commit.hexsha[:8]
