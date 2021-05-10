@@ -35,6 +35,7 @@ class ExperimentRunner:
     def run_experiment(
         self,
         experiment: Experiment,
+        message: str,
         force: bool,
         limit: int = None,
     ):
@@ -42,7 +43,7 @@ class ExperimentRunner:
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or not self.git_repo.is_dirty():
             print("Running evaluation")
-            estimators = self._run_evaluation(experiment)
+            estimators = self._run_evaluation(experiment, message)
             results = self.results_repo.get_results(self.git_repo)
             self.results_display.cache_display(results)
         else:
@@ -52,15 +53,18 @@ class ExperimentRunner:
         self.results_display.print_cache_file(limit)
         return estimators
 
-    def _run_evaluation(self, experiment: Experiment):
+    def _run_evaluation(self, experiment: Experiment, message: str):
         run_info, estimators = evaluate_predictor(experiment)
         dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         dataset_info = {
             'hash': dataset_hash,
             'columns': experiment.dataset.columns.tolist(),
         }
-        git_hash_msg = ("dirty_" if self.git_repo.is_dirty() else "") + self.git_repo.head.object.hexsha[:8]
-        _ = self.results_repo.save_results(run_info, dataset_info, git_hash_msg=git_hash_msg)
+        git_info = {
+            "git_hash_msg": ("dirty_" if self.git_repo.is_dirty() else "") + self.git_repo.head.object.hexsha[:8],
+            "git_summary_msg": message,
+        }
+        _ = self.results_repo.save_results(run_info, dataset_info, git_info=git_info)
         return estimators
 
 
@@ -193,9 +197,9 @@ def _score(scorers: List[_BaseScorer], estimator, X_test, y_test):
     return scores
 
 
-def run_experiment(experiment, force=False):
+def run_experiment(experiment, message, force=False):
     git_repo = Repo(REPO_PATH, search_parent_directories=True)  # type: pypastry.experiment.Experiment
     results_repo = ResultsRepo(RESULTS_PATH)  # type: pypastry.experiment.results.ResultsRepo
     runner = ExperimentRunner(git_repo, results_repo, display)  # type:
     # pypastry.experiment.evaluation.ExperimentRunner
-    return runner.run_experiment(experiment, force)
+    return runner.run_experiment(experiment, message, force)
