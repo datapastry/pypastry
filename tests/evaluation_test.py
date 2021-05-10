@@ -10,7 +10,7 @@ from pypastry.experiment import Experiment
 from pypastry.experiment.evaluation import ExperimentRunner, evaluate_predictor
 
 
-def test_simple_evaluation():
+def test_simple_evaluation(dirty=False, force=False):
     # Given
     dataset = DataFrame({
         'a': [1, 1, 0, 0],
@@ -23,6 +23,7 @@ def test_simple_evaluation():
     experiment = Experiment(dataset, 'b', predictor, cross_validation, scorer)
 
     git_mock = Mock()
+    git_mock.is_dirty.return_value = dirty
     results_repo_mock = Mock()
     new_results_files = ['results/abc.json']
     results_repo_mock.save_results.return_value = new_results_files
@@ -30,7 +31,7 @@ def test_simple_evaluation():
     runner = ExperimentRunner(git_mock, results_repo_mock, results_display_mock)
 
     # When
-    runner.run_experiment(experiment, False)
+    runner.run_experiment(experiment, force)
 
     # Then
     call_args_list = results_repo_mock.save_results.call_args_list
@@ -44,10 +45,6 @@ def test_simple_evaluation():
 
     # TODO: check the hash. Need to find a way to make this consistent between python versions etc.
     # assert '28ea628a50a47c726a9b0ec437c88fc4742d81fd' == dataset_info['hash']
-
-    git_mock.git.add.assert_called_once_with(update=True)
-    git_mock.index.add.assert_called_once_with(new_results_files)
-    git_mock.index.commit.assert_called_once_with(commit_message)
 
     assert 1 == len(results_display_mock.cache_display.call_args_list)
     print(results_display_mock.cache_display.call_args[0])
@@ -69,6 +66,7 @@ def test_grouped_evaluation():
     experiment = Experiment(dataset, 'b', predictor, cross_validation, scorer, group_column='g')
 
     git_mock = Mock()
+    git_mock.is_dirty.return_value = False
     results_repo_mock = Mock()
     results_display_mock = Mock()
     runner = ExperimentRunner(git_mock, results_repo_mock, results_display_mock)
@@ -96,7 +94,7 @@ def test_multiple_scorers():
     scorer = [make_scorer(accuracy_score), make_scorer(precision_score)]
     experiment = Experiment(dataset, 'b', predictor, cross_validation, scorer)
 
-    run_info = evaluate_predictor(experiment)
+    run_info, _ = evaluate_predictor(experiment)
     results = run_info['results']
     print("Results", results)
 

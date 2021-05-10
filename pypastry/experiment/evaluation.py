@@ -39,7 +39,7 @@ class ExperimentRunner:
         limit: int = None,
     ):
         print("Got dataset with {} rows".format(len(experiment.dataset)))
-        if force or not self.git_repo.is_dirty:
+        if force or not self.git_repo.is_dirty():
             print("Running evaluation")
             estimators = self._run_evaluation(experiment)
             results = self.results_repo.get_results(self.git_repo)
