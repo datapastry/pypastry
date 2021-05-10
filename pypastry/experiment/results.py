@@ -1,10 +1,11 @@
 import json
-from os import mkdir
-from pathlib import Path
+import os
+import glob
 from tempfile import NamedTemporaryFile
 from typing import Dict, Any, List, NamedTuple
 
-Result = NamedTuple('Result', [('data', Dict[str, Any]), ('git_hash', str), ('summary', str), ("dirty", bool)])
+
+Result = NamedTuple('Result', [('data', Dict[str, Any]), ("dirty", bool)])
 
 
 class ResultsRepo:
@@ -13,7 +14,7 @@ class ResultsRepo:
 
     def save_results(self, run_info: Dict[str, Any], dataset_info: Dict[str, Any]) -> List[str]:
         try:
-            mkdir(self.results_path)
+            os.mkdir(self.results_path)
         except FileExistsError:
             pass
         new_filenames = []
@@ -26,10 +27,7 @@ class ResultsRepo:
         return new_filenames
 
     def get_results(self, git_repo):
-        for path in Path(self.results_path).glob('*'):
-            with open(str(path)) as results_file:
-                git_commit = next(git_repo.iter_commits(paths=path.absolute()))
-                summary = git_commit.summary
-                git_hash = git_commit.hexsha[:8]
+        for path in glob.glob(os.path.join(self.results_path, "*.json")):
+            with open(str(path), "r") as results_file:
                 result_json = json.load(results_file)
-                yield Result(result_json, git_hash, summary, git_repo.is_dirty())
+            yield Result(result_json, git_repo.is_dirty())

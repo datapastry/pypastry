@@ -38,12 +38,14 @@ class ExperimentRunner:
         force: bool,
         limit: int = None,
     ):
+
+        last_git_hash = self.git_repo.head.object.hexsha
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or not self.git_repo.is_dirty():
             print("Running evaluation")
             estimators = self._run_evaluation(experiment)
             results = self.results_repo.get_results(self.git_repo)
-            self.results_display.cache_display(results)
+            self.results_display.cache_display(results, git_hash=last_git_hash)
         else:
             raise DirtyRepoError("There are untracked/unstaged/staged changes in git repo, force flag was not given. "
                                  "Please commit your changes or provide force flag - note that in this case "

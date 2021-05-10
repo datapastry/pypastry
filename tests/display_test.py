@@ -39,7 +39,7 @@ RESULTS = {
 
 def test_get_display():
     result = Result(RESULTS, 'abc123')
-    results_dataframe = _get_results_dataframe([result])
+    results_dataframe = _get_results_dataframe([result], "abc123")
     row = results_dataframe.iloc[0].to_dict()
 
     expected = {

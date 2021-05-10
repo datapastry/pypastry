@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     import pypastry
 
 
-def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> None:
-    results_dataframe = _get_results_dataframe(results_from_repo)
+def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Result'], git_hash: str) -> None:
+    results_dataframe = _get_results_dataframe(results_from_repo, git_hash=git_hash)
     display = repr(results_dataframe)
 
     try:
@@ -31,17 +31,16 @@ def cache_display(results_from_repo: Iterator['pypastry.experiment.results.Resul
         output_file.write(display)
 
 
-def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.results.Result']) -> 'DataFrame':
+def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.results.Result'], git_hash: str) -> 'DataFrame':
     from pandas import DataFrame, set_option
     set_option('display.max_rows', None)
     set_option('display.max_columns', None)
     set_option('display.width', None)
     set_option('display.max_colwidth', -1)
     results = []
-    summaries = []
     for repo_result in results_from_repo:
         data = repo_result.data
-        git_hash_msg = ("dirty_" if repo_result.dirty else "") + repo_result.git_hash
+        git_hash_msg = ("dirty_" if repo_result.dirty else "") + git_hash[:8]
         result = {
             'Git hash': git_hash_msg,
             'Dataset hash': data['dataset']['hash'][:8],
@@ -57,11 +56,9 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
         except ValueError:
             result['Score'] = "{:.3f} ± {:.3f}".format(data['results']['test_score'],
                                                        data['results']['test_score_sem'])
-        summaries.append(repo_result.summary)
 
         results.append(result)
     results_dataframe = DataFrame(results)
-    results_dataframe['Summary'] = summaries
     return results_dataframe.sort_values(by='Run start').reset_index()
 
 
