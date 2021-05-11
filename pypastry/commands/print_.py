@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 from pypastry.display import print_cache_file, cache_display, _get_results_dataframe
 from pypastry.paths import RESULTS_PATH

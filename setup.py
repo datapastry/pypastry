@@ -3,8 +3,8 @@ import sys
 from setuptools import setup, find_packages
 
 #check to make sure the python version is compatible 
-if sys.version_info < (3, 5):
-    sys.exit('Sorry, PyPastry requires Python version 3.5 or greater')
+if sys.version_info < (3, 6):
+    sys.exit('Sorry, PyPastry requires Python version 3.6 or greater')
 
 # Reading in the ReadMe file as the doc file
 with open("README.md", "r") as fh:
@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pypastry',
-    version='0.0.3',
+    version='0.2.0',
     description='PyPastry machine learning experimentation framework',
     author='Daoud Clarke',
     url='https://github.com/datapastry/pypastry',
@@ -42,7 +42,6 @@ setup(
     include_package_data=True,
     #Minimum requirement of python, licesnse, and operating system. 
     classifiers=[
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

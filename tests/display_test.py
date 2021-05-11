@@ -33,7 +33,7 @@ RESULTS = {
             "input",
             "output"
         ]
-    }
+    },
 }
 
 

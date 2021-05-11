@@ -38,12 +38,11 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
     set_option('display.width', None)
     set_option('display.max_colwidth', -1)
     results = []
-    summaries = []
-    results_from_repo = list(results_from_repo)
     for repo_result in results_from_repo:
         data = repo_result.data
         result = {
-            'Git hash': repo_result.git_hash,
+            'Git hash': data["git_hash"] if "git_hash" in data else "Unavailable",
+            'Git summary': data["git_summary"] if "git_summary" in data else "Unavailable",
             'Dataset hash': data['dataset']['hash'][:8],
             'Run start': data['run_start'][:19],
             'Model': data['model_info']['type'],
@@ -57,11 +56,9 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
         except ValueError:
             result['Score'] = "{:.3f} ± {:.3f}".format(data['results']['test_score'],
                                                        data['results']['test_score_sem'])
-        summaries.append(repo_result.summary)
 
         results.append(result)
     results_dataframe = DataFrame(results)
-    results_dataframe['Summary'] = summaries
     return results_dataframe.sort_values(by='Run start').reset_index()
 
 
