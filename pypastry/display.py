@@ -61,7 +61,7 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
 
         results.append(result)
     results_dataframe = DataFrame(results)
-    return results_dataframe.sort_values(by='Run start').reset_index()
+    return results_dataframe.sort_values(by='Run start').reset_index(drop=True)
 
 
 def print_cache_file(limit=False):

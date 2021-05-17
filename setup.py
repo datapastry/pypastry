@@ -17,7 +17,7 @@ setup(
     author='Daoud Clarke',
     url='https://github.com/datapastry/pypastry',
     scripts=['pastry'],
-    install_requires=['tomlkit', 'pandas', 'scikit-learn', 'pyarrow', 'gitpython'],
+    install_requires=['tomlkit', 'pandas', 'scikit-learn', 'pyarrow', 'gitpython', 'pytest'],
     #To find the packages 
     packages=find_packages(),
     #To read in data file modules 
