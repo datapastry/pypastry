@@ -78,4 +78,6 @@ something on.
 
 If you have an idea for something you'd like to do, create an issue.
 
+Run `python -m pytest` in the project root to run all tests.
+
 Thanks for using PyPastry!
