@@ -2,6 +2,7 @@ import argparse
 
 from pypastry.display import print_cache_file, cache_display, _get_results_dataframe
 from pypastry.paths import RESULTS_PATH
+from pypastry.experiment.results import ResultsRepo
 
 
 def run():
@@ -24,8 +25,6 @@ def run():
 
 
 def get_results():
-    from pypastry.experiment.results import ResultsRepo
-    from git import Repo
     results_repo = ResultsRepo(RESULTS_PATH)
-    results = results_repo.get_results(Repo('.', search_parent_directories=True))
+    results = results_repo.get_results()
     return results

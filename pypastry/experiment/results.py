@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 from typing import Dict, Any, NamedTuple
 
 
-Result = NamedTuple('Result', [('data', Dict[str, Any]), ("dirty", bool)])
+Result = NamedTuple('Result', [('data', Dict[str, Any])])
 
 
 class ResultsRepo:
@@ -27,8 +27,8 @@ class ResultsRepo:
             json.dump(run_info, output_file, indent=4, default=str)
             output_file.flush()
 
-    def get_results(self, git_repo):
+    def get_results(self):
         for path in glob.glob(os.path.join(self.results_path, "*.json")):
             with open(str(path), "r") as results_file:
                 result_json = json.load(results_file)
-            yield Result(result_json, git_repo.is_dirty())
+            yield Result(result_json)

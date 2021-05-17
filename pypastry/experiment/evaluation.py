@@ -44,7 +44,7 @@ class ExperimentRunner:
         if force or not self.git_repo.is_dirty():
             print("Running evaluation")
             estimators = self._run_evaluation(experiment, message)
-            results = self.results_repo.get_results(self.git_repo)
+            results = self.results_repo.get_results()
             self.results_display.cache_display(results)
         else:
             raise DirtyRepoError("There are untracked/unstaged/staged changes in git repo, force flag was not given. "
