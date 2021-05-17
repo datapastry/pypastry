@@ -42,8 +42,10 @@ def _get_results_dataframe(results_from_repo: Iterator['pypastry.experiment.resu
         data = repo_result.data
         result = {
             'Git hash': data["git_hash"] if "git_hash" in data else "Unavailable",
-            'Git summary': data["git_summary"] if "git_summary" in data else "Unavailable",
+            'Summary': data["git_summary"] if "git_summary" in data else "Unavailable",
             'Dataset hash': data['dataset']['hash'][:8],
+            'Dataset size': data['dataset']['size'] if "size" in data["dataset"] else "Unavailable",
+            'Result JSON name': data['result_json_name'] if "result_json_name" in data else "Unavailable",
             'Run start': data['run_start'][:19],
             'Model': data['model_info']['type'],
             'Duration (s)': "{:.2f}".format(data['run_seconds']),

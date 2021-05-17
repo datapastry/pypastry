@@ -25,8 +25,6 @@ def test_simple_evaluation(dirty=False, force=False):
     git_mock = Mock()
     git_mock.is_dirty.return_value = dirty
     results_repo_mock = Mock()
-    new_results_files = ['results/abc.json']
-    results_repo_mock.save_results.return_value = new_results_files
     results_display_mock = Mock()
     runner = ExperimentRunner(git_mock, results_repo_mock, results_display_mock)
 
