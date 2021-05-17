@@ -117,16 +117,8 @@ def test_grouped_evaluation(dirty, force, grouped_dataset):
 
     print("Run infos", run_info)
 
-    expected_results = {'test_score': {'accuracy_score': 0.5}, 'test_score_sem': {'accuracy_score': 0.0}}
-    pruned_results = {
-        'test_score': {
-            'accuracy_score': run_info['results']["test_score"]["accuracy_score"]
-        },
-        'test_score_sem': {
-            'accuracy_score': run_info['results']["test_score_sem"]["accuracy_score"]
-        }
-    }
-    assert expected_results == pruned_results
+    assert run_info['results']["test_score"]["accuracy_score"] == 0.5
+    assert run_info['results']["test_score_sem"]["accuracy_score"] == 0.0
 
 
 def test_multiple_scorers(simple_dataset):
