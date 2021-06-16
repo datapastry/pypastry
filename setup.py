@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pypastry',
-    version='0.2.1',
+    version='0.3.0',
     description='PyPastry machine learning experimentation framework',
     author='Daoud Clarke',
     url='https://github.com/datapastry/pypastry',
