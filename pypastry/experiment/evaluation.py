@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from types import ModuleType
 from typing import Any, Dict, Tuple, List
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -38,22 +39,25 @@ class ExperimentRunner:
         message: str = "",
         force: bool = False,
         limit: int = None,
-    ):
+        show_results: bool = True,
+    ) -> Tuple[List[BaseEstimator], Path]:
 
         print("Got dataset with {} rows".format(len(experiment.dataset)))
         if force or not self.git_repo.is_dirty():
             print("Running evaluation")
-            estimators = self._run_evaluation(experiment, message)
+            estimators, result_file_path = self._run_evaluation(experiment, message)
             results = self.results_repo.get_results()
             self.results_display.cache_display(results)
         else:
             raise DirtyRepoError("There are untracked/unstaged/staged changes in git repo, force flag was not given. "
                                  "Please commit your changes or provide force flag - note that in this case "
                                  "saved commit hash in your result file will not correspond to the actual code!")
-        self.results_display.print_cache_file(limit)
-        return estimators
+        if show_results:
+            self.results_display.print_cache_file(limit)
 
-    def _run_evaluation(self, experiment: Experiment, message: str):
+        return estimators, result_file_path
+
+    def _run_evaluation(self, experiment: Experiment, message: str) -> Tuple[List[BaseEstimator], Path]:
         run_info, estimators = evaluate_predictor(experiment)
         dataset_hash = get_dataset_hash(experiment.dataset, experiment.test_set)
         dataset_info = {
@@ -65,8 +69,9 @@ class ExperimentRunner:
             "git_hash_msg": ("dirty_" if self.git_repo.is_dirty() else "") + self.git_repo.head.object.hexsha[:8],
             "git_summary_msg": message,
         }
-        self.results_repo.save_results(run_info, dataset_info, git_info=git_info)
-        return estimators
+        result_file_path = self.results_repo.save_results(run_info, dataset_info, git_info=git_info)
+
+        return estimators, result_file_path
 
 
 def evaluate_predictor(experiment: Experiment) -> Dict[str, Tuple[Any, List[BaseEstimator]]]:
@@ -198,9 +203,14 @@ def _score(scorers: List[_BaseScorer], estimator, X_test, y_test):
     return scores
 
 
-def run_experiment(experiment, message="", force=False):
+def run_experiment(experiment, message="", force=False, show_results=True) -> Tuple[List[BaseEstimator], Path]:
     git_repo = Repo(REPO_PATH, search_parent_directories=True)  # type: pypastry.experiment.Experiment
     results_repo = ResultsRepo(RESULTS_PATH)  # type: pypastry.experiment.results.ResultsRepo
     runner = ExperimentRunner(git_repo, results_repo, display)  # type:
     # pypastry.experiment.evaluation.ExperimentRunner
-    return runner.run_experiment(experiment, message, force)
+    return runner.run_experiment(
+        experiment=experiment,
+        message=message,
+        force=force,
+        show_results=show_results,
+    )
